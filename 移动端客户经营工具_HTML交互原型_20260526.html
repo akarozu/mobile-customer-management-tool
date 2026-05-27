@@ -1,0 +1,524 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>移动端客户经营工具 · HTML可交互原型</title>
+  <style>
+    :root {
+      --primary: #2563EB;
+      --primary-dark: #1D4ED8;
+      --secondary: #3B82F6;
+      --success: #10B981;
+      --warning: #F59E0B;
+      --error: #EF4444;
+      --bg: #F8FAFC;
+      --surface: #FFFFFF;
+      --foreground: #0F172A;
+      --muted: #64748B;
+      --border: #E2E8F0;
+      --success-bg: #DCFCE7;
+      --warning-bg: #FEF3C7;
+      --error-bg: #FEE2E2;
+      --primary-bg: #DBEAFE;
+      --shadow: 0 12px 30px rgba(15, 23, 42, .08);
+      --radius: 18px;
+      --safe-bottom: env(safe-area-inset-bottom, 0px);
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: linear-gradient(135deg, #e0f2fe, #f8fafc 36%, #eef2ff);
+      color: var(--foreground);
+      font-family: "IBM Plex Sans", "PingFang SC", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    button, input, select, textarea { font: inherit; }
+    button { border: 0; cursor: pointer; }
+    .stage {
+      display: grid;
+      grid-template-columns: minmax(360px, 430px) minmax(280px, 1fr);
+      gap: 24px;
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 28px;
+    }
+    .phone {
+      position: sticky;
+      top: 24px;
+      height: 880px;
+      max-height: calc(100vh - 48px);
+      overflow: hidden;
+      border: 10px solid #0f172a;
+      border-radius: 40px;
+      background: var(--bg);
+      box-shadow: 0 28px 80px rgba(15, 23, 42, .28);
+    }
+    .screen { height: 100%; display: flex; flex-direction: column; }
+    .topbar {
+      height: 64px;
+      flex: 0 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 18px 10px;
+      background: rgba(255,255,255,.92);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid rgba(226,232,240,.8);
+      z-index: 4;
+    }
+    .brand { display: flex; align-items: center; gap: 10px; font-weight: 700; }
+    .logo {
+      width: 34px; height: 34px; border-radius: 12px;
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      color: white; display: grid; place-items: center; font-size: 14px; letter-spacing: -.04em;
+      box-shadow: 0 10px 20px rgba(37, 99, 235, .25);
+    }
+    .icon-btn, .ghost-btn {
+      min-width: 44px; min-height: 44px;
+      border-radius: 14px;
+      background: #f1f5f9;
+      color: var(--foreground);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 0 12px;
+      transition: transform .18s ease, background .18s ease;
+    }
+    .icon-btn:active, .ghost-btn:active, .primary-btn:active, .secondary-btn:active { transform: scale(.97); }
+    .content {
+      flex: 1;
+      overflow-y: auto;
+      padding: 14px 16px 108px;
+      scroll-behavior: smooth;
+    }
+    .page { display: none; animation: enter .2s ease; }
+    .page.active { display: block; }
+    @keyframes enter { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+    .hero {
+      overflow: hidden;
+      border-radius: 24px;
+      background: white;
+      box-shadow: var(--shadow);
+      margin-bottom: 14px;
+    }
+    .hero-head {
+      padding: 18px;
+      color: white;
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+    }
+    .hello { display: flex; justify-content: space-between; gap: 12px; align-items: flex-start; }
+    .hello h1 { margin: 0 0 6px; font-size: 20px; }
+    .hello p { margin: 0; color: rgba(255,255,255,.82); font-size: 12px; }
+    .kpis { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 18px; }
+    .kpi strong { display: block; font-size: 20px; font-weight: 800; letter-spacing: -.03em; }
+    .kpi span { font-size: 11px; color: rgba(255,255,255,.78); }
+    .hero-foot { padding: 12px 18px; display: flex; justify-content: space-between; align-items: center; color: var(--muted); font-size: 12px; }
+    .card {
+      border-radius: var(--radius);
+      background: var(--surface);
+      box-shadow: 0 8px 24px rgba(15, 23, 42, .06);
+      border: 1px solid rgba(226,232,240,.75);
+      padding: 14px;
+      margin-bottom: 12px;
+    }
+    .section-title { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 12px; }
+    .section-title h2 { font-size: 16px; margin: 0; }
+    .section-title small { color: var(--muted); font-size: 12px; }
+    .todo-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+    .todo-card {
+      min-height: 86px;
+      border-radius: 16px;
+      padding: 12px;
+      background: #f8fafc;
+      border: 1px solid var(--border);
+      text-align: left;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    .todo-card strong { font-size: 24px; }
+    .todo-card span { color: var(--muted); font-size: 12px; }
+    .todo-card.warning { background: var(--warning-bg); border-color: #fde68a; }
+    .todo-card.error { background: var(--error-bg); border-color: #fecaca; }
+    .todo-card.success { background: var(--success-bg); border-color: #bbf7d0; }
+    .customer-card {
+      width: 100%; text-align: left;
+      border-radius: 18px;
+      padding: 14px;
+      background: white;
+      border: 1px solid var(--border);
+      margin-bottom: 10px;
+    }
+    .customer-card.urgent { border-left: 5px solid var(--error); }
+    .customer-card.warning-line { border-left: 5px solid var(--warning); }
+    .row { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+    .left { display: flex; align-items: center; gap: 10px; min-width: 0; }
+    .avatar { width: 42px; height: 42px; border-radius: 50%; background: linear-gradient(135deg, #dbeafe, #bfdbfe); color: var(--primary-dark); display: grid; place-items: center; font-weight: 700; flex: 0 0 auto; }
+    .name { font-weight: 700; font-size: 15px; }
+    .sub { color: var(--muted); font-size: 12px; margin-top: 4px; }
+    .tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+    .tag { border-radius: 999px; padding: 4px 8px; font-size: 11px; font-weight: 600; background: #f1f5f9; color: var(--muted); }
+    .tag.red { color: #991b1b; background: var(--error-bg); }
+    .tag.orange { color: #92400e; background: var(--warning-bg); }
+    .tag.green { color: #065f46; background: var(--success-bg); }
+    .tag.blue { color: #1d4ed8; background: var(--primary-bg); }
+    .reason { margin-top: 10px; color: var(--foreground); font-size: 13px; line-height: 1.45; }
+    .quick-actions { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+    .quick-actions button { min-height: 68px; border-radius: 16px; background: #f8fafc; color: var(--foreground); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; }
+    .quick-actions b { width: 28px; height: 28px; border-radius: 10px; background: var(--primary-bg); color: var(--primary); display: grid; place-items: center; font-size: 12px; }
+    .timeline { display: grid; gap: 10px; }
+    .timeline-item { border-left: 3px solid var(--primary); padding-left: 10px; font-size: 13px; }
+    .timeline-item small { display: block; color: var(--muted); margin-top: 3px; }
+    .tabbar {
+      position: absolute; left: 0; right: 0; bottom: 0;
+      padding: 8px 12px calc(8px + var(--safe-bottom));
+      background: rgba(255,255,255,.94);
+      backdrop-filter: blur(18px);
+      border-top: 1px solid rgba(226,232,240,.9);
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px;
+      z-index: 5;
+    }
+    .tab { min-height: 56px; border-radius: 16px; background: transparent; color: var(--muted); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; font-size: 12px; }
+    .tab.active { color: var(--primary); background: var(--primary-bg); font-weight: 700; }
+    .tab i { font-style: normal; font-size: 14px; font-weight: 800; }
+    .filters { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 6px; margin-bottom: 10px; }
+    .filter { white-space: nowrap; min-height: 36px; padding: 0 12px; border-radius: 999px; border: 1px solid var(--border); background: white; color: var(--muted); }
+    .filter.active { background: var(--primary); color: white; border-color: var(--primary); }
+    .search { width: 100%; min-height: 44px; border: 1px solid var(--border); border-radius: 16px; background: white; padding: 0 14px; outline: none; margin-bottom: 10px; }
+    .asset-bar { display: flex; height: 12px; overflow: hidden; border-radius: 999px; background: #e2e8f0; margin: 12px 0 8px; }
+    .asset-bar span:nth-child(1) { background: #3B82F6; }
+    .asset-bar span:nth-child(2) { background: #10B981; }
+    .asset-bar span:nth-child(3) { background: #8B5CF6; }
+    .asset-bar span:nth-child(4) { background: #F59E0B; }
+    .detail-head { background: linear-gradient(135deg, var(--primary), var(--secondary)); color: white; border-radius: 22px; padding: 16px; margin-bottom: 12px; }
+    .detail-head .sub { color: rgba(255,255,255,.78); }
+    .metrics { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+    .metric { background: #f8fafc; border-radius: 16px; padding: 12px; border: 1px solid var(--border); }
+    .metric span { color: var(--muted); font-size: 12px; }
+    .metric strong { display: block; margin-top: 4px; font-size: 18px; }
+    .list { display: grid; gap: 10px; }
+    .list-item { border-radius: 16px; border: 1px solid var(--border); padding: 12px; background: white; }
+    .product-due { background: #fff7ed; border-color: #fed7aa; }
+    .action-panel { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+    .primary-btn, .secondary-btn, .danger-btn {
+      min-height: 44px;
+      border-radius: 14px;
+      padding: 0 14px;
+      color: white;
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      font-weight: 700;
+    }
+    .secondary-btn { color: var(--primary); background: var(--primary-bg); }
+    .danger-btn { background: var(--error); }
+    .template { width: 100%; text-align: left; min-height: 70px; background: white; border: 1px solid var(--border); border-radius: 16px; padding: 12px; margin-bottom: 10px; }
+    .template.selected { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(37,99,235,.14); }
+    .textarea { width: 100%; min-height: 128px; border: 1px solid var(--border); border-radius: 16px; padding: 12px; resize: vertical; color: var(--foreground); background: #f8fafc; }
+    .notice { border-radius: 16px; padding: 12px; background: #eff6ff; border: 1px solid #bfdbfe; color: #1e40af; font-size: 13px; line-height: 1.5; margin-bottom: 10px; }
+    .notice.warn { background: #fffbeb; border-color: #fde68a; color: #92400e; }
+    .notice.error { background: var(--error-bg); border-color: #fecaca; color: #991b1b; }
+    .empty { text-align: center; color: var(--muted); padding: 28px 12px; }
+    .sheet-backdrop { position: absolute; inset: 0; background: rgba(15,23,42,.32); display: none; align-items: flex-end; z-index: 20; }
+    .sheet-backdrop.active { display: flex; }
+    .sheet { width: 100%; max-height: 78%; overflow-y: auto; background: white; border-radius: 26px 26px 0 0; padding: 18px; animation: sheet .24s ease; }
+    @keyframes sheet { from { transform: translateY(100%); } to { transform: translateY(0); } }
+    .sheet h3 { margin: 0 0 10px; }
+    .split { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+    .guide {
+      background: rgba(255,255,255,.78);
+      border: 1px solid rgba(226,232,240,.9);
+      border-radius: 24px;
+      padding: 22px;
+      box-shadow: var(--shadow);
+      max-height: calc(100vh - 56px);
+      overflow-y: auto;
+    }
+    .guide h1 { margin: 0 0 8px; font-size: 24px; }
+    .guide h2 { font-size: 17px; margin: 24px 0 10px; }
+    .guide p, .guide li { color: #334155; line-height: 1.65; font-size: 14px; }
+    .guide table { width: 100%; border-collapse: collapse; font-size: 13px; background: white; border-radius: 14px; overflow: hidden; }
+    .guide th, .guide td { border: 1px solid var(--border); padding: 8px; text-align: left; vertical-align: top; }
+    .guide th { background: #f1f5f9; }
+    .pill-line { display: flex; flex-wrap: wrap; gap: 8px; }
+    .mobile-only { display: none; }
+    @media (max-width: 860px) {
+      body { background: var(--bg); }
+      .stage { display: block; padding: 0; }
+      .phone { position: relative; top: 0; height: 100vh; max-height: none; border: 0; border-radius: 0; box-shadow: none; }
+      .guide { display: none; }
+      .mobile-only { display: block; }
+    }
+  </style>
+</head>
+<body>
+  <main class="stage">
+    <section class="phone" aria-label="移动端客户经营工具原型">
+      <div class="screen">
+        <header class="topbar">
+          <div class="brand"><div class="logo">RM</div><span id="topTitle">客户经营助手</span></div>
+          <div class="row" style="gap:8px"><button class="icon-btn" onclick="showSheet('messages')">通知</button><button class="icon-btn" onclick="go('mine')">我的</button></div>
+        </header>
+        <div class="content" id="content">
+          <section class="page active" id="home">
+            <div class="hero">
+              <div class="hero-head">
+                <div class="hello"><div><h1>早上好，李经理</h1><p>今天优先处理到期与资金流出客户</p></div><span class="tag" style="background:rgba(255,255,255,.18);color:white">企微入口</span></div>
+                <div class="kpis">
+                  <div class="kpi"><strong>126</strong><span>管户客户</span></div>
+                  <div class="kpi"><strong>856万</strong><span>AUM</span></div>
+                  <div class="kpi"><strong>21</strong><span>今日待办</span></div>
+                  <div class="kpi"><strong>9</strong><span>待联系</span></div>
+                </div>
+              </div>
+              <div class="hero-foot"><span>资产/持仓/收益率/到期日 T+1 更新</span><button class="ghost-btn" onclick="showSheet('dataFreshness')">说明</button></div>
+            </div>
+
+            <div class="card">
+              <div class="section-title"><h2>今日待办</h2><small>首屏可见，点击进入列表</small></div>
+              <div class="todo-grid">
+                <button class="todo-card warning" onclick="openTodo('到期')"><span>产品即将到期</span><strong>8</strong><span>含今日到期 2 笔</span></button>
+                <button class="todo-card error" onclick="openTodo('资金变动')"><span>资金流出预警</span><strong>3</strong><span>流出 30% 或 >10万</span></button>
+                <button class="todo-card success" onclick="openTodo('活动')"><span>活动达标</span><strong>6</strong><span>待领奖 4 人</span></button>
+                <button class="todo-card" onclick="openTodo('久未联系')"><span>30天未联系</span><strong>4</strong><span>企微/电话/拜访均未触达</span></button>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="section-title"><h2>优先联系 TOP10</h2><small>完整展示 10 条 · 到期 > 资金变动 > 资产规模 > 久未联系</small></div>
+              <div class="notice">排序样本可验证：#1-#2 到期，#3-#4 资金变动，#5-#7 资产规模，#8-#9 久未联系，#10 数据异常兜底。</div>
+              <div id="priorityList"></div>
+            </div>
+
+            <div class="card">
+              <div class="section-title"><h2>快捷操作</h2><small>核心链路入口</small></div>
+              <div class="quick-actions">
+                <button onclick="go('customers')"><b>客</b><span>客户列表</span></button>
+                <button onclick="openTodo('全部')"><b>办</b><span>待办池</span></button>
+                <button onclick="go('marketing')"><b>营</b><span>批量触达</span></button>
+                <button onclick="showSheet('unauthorized')"><b>权</b><span>权限示例</span></button>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="section-title"><h2>最近动态</h2><small>倒序展示</small></div>
+              <div class="timeline">
+                <div class="timeline-item">王** 稳盈理财今日到期，可发起续存跟进<small>09:12 · 产品到期</small></div>
+                <div class="timeline-item" style="border-color:var(--error)">赵** 昨日资产流出 12.8 万，达到预警阈值<small>08:40 · 资金变动</small></div>
+                <div class="timeline-item" style="border-color:var(--success)">陈** 活动状态变为待领奖<small>昨日 18:02 · 活动达标</small></div>
+              </div>
+            </div>
+          </section>
+
+          <section class="page" id="todoPage">
+            <div class="card">
+              <div class="section-title"><h2 id="todoTitle">待办列表</h2><button class="ghost-btn" onclick="go('home')">返回</button></div>
+              <div class="notice">状态覆盖：待处理、跟进中、已完成、已忽略、已过期；忽略必须选择原因并留痕。</div>
+              <div class="filters" id="todoFilters"></div>
+              <div id="todoList"></div>
+            </div>
+          </section>
+
+          <section class="page" id="customers">
+            <input class="search" id="searchInput" inputmode="search" placeholder="搜索姓名、手机号后四位、客户号" oninput="renderCustomers()" />
+            <div class="filters" id="customerFilters"></div>
+            <div id="customerList"></div>
+          </section>
+
+          <section class="page" id="detail">
+            <button class="ghost-btn" onclick="historyBack()" style="margin-bottom:12px">返回上一页</button>
+            <div id="detailBody"></div>
+          </section>
+
+          <section class="page" id="marketing">
+            <div class="card">
+              <div class="section-title"><h2>营销工具</h2><small>模板由后端配置，不允许 AI 自由生成</small></div>
+              <div class="notice warn">企微发送前提示：仅支持已添加企微客户；推送后客户经理仍需在企业微信“群发助手”完成发送，结果可回写。</div>
+              <button class="template selected" onclick="selectTemplate(this, '到期续存模板')"><div class="row"><strong>到期续存模板</strong><span class="tag green">已审批</span></div><div class="sub">适用：产品到期 1-7 天客户</div></button>
+              <button class="template" onclick="selectTemplate(this, '活动领奖提醒')"><div class="row"><strong>活动领奖提醒</strong><span class="tag green">已审批</span></div><div class="sub">适用：活动状态为待领奖客户</div></button>
+              <button class="template" onclick="selectTemplate(this, 'AI自由生成示例')"><div class="row"><strong>AI 自由生成示例</strong><span class="tag red">不可发送</span></div><div class="sub">合规边界：不允许绕过模板审批</div></button>
+            </div>
+
+            <div class="card">
+              <div class="section-title"><h2>客户选择</h2><small>仅管户且已添加企微客户可选</small></div>
+              <label class="list-item"><input type="checkbox" checked /> 王** 138****2345 · 已添加企微 · 到期</label>
+              <label class="list-item"><input type="checkbox" checked /> 陈** 159****8765 · 已添加企微 · 待领奖</label>
+              <label class="list-item" style="opacity:.56"><input type="checkbox" disabled /> 周** 186****0000 · 未添加企微，不可选</label>
+              <label class="list-item" style="opacity:.56"><input type="checkbox" disabled /> 非管户客户 · 权限不可见，不可选</label>
+            </div>
+
+            <div class="card">
+              <div class="section-title"><h2>内容预览</h2><small id="templateName">到期续存模板</small></div>
+              <textarea class="textarea" id="messageText">王先生您好，您持有的稳盈理财将于 2026-05-27 到期，可在方便时与我沟通后续安排。本消息仅作到期提醒，不构成收益承诺或投资建议。</textarea>
+              <div class="notice" style="margin-top:10px">合规校验通过：无收益承诺、无诱导交易、使用已审批模板。</div>
+              <div class="action-panel"><button class="secondary-btn" onclick="showSheet('riskBlock')">查看违规阻断</button><button class="primary-btn" onclick="showSheet('sendConfirm')">发送前确认</button></div>
+            </div>
+
+            <div class="card">
+              <div class="section-title"><h2>发送记录</h2><button class="ghost-btn" onclick="showSheet('sendResult')">查看结果</button></div>
+              <div class="list-item"><div class="row"><strong>到期续存模板</strong><span class="tag blue">待企业微信发送</span></div><div class="sub">2 人 · 推送结果已回写 · 需在群发助手完成</div></div>
+              <div class="list-item"><div class="row"><strong>活动领奖提醒</strong><span class="tag red">部分失败</span></div><div class="sub">失败 1 人：客户联系方式缺失，可重试或补充信息</div></div>
+            </div>
+          </section>
+
+          <section class="page" id="mine">
+            <div class="card">
+              <div class="section-title"><h2>我的中心</h2><small>业绩与审计入口</small></div>
+              <div class="metrics"><div class="metric"><span>本月触达</span><strong>68次</strong></div><div class="metric"><span>完成待办</span><strong>42项</strong></div><div class="metric"><span>审计记录</span><strong>128条</strong></div><div class="metric"><span>数据批次</span><strong>T+1</strong></div></div>
+            </div>
+            <div class="card">
+              <div class="section-title"><h2>异常与边界场景</h2><small>评审可验证</small></div>
+              <div class="list">
+                <button class="list-item" onclick="showSheet('dataMissing')">到期金额缺失：展示“暂无数据”，进入数据异常待确认</button>
+                <button class="list-item" onclick="showSheet('unauthorized')">越权客户：不可搜索、不可查看、不可触达</button>
+                <button class="list-item" onclick="showSheet('sendResult')">批量发送部分失败：成功/失败分开展示</button>
+                <button class="list-item" onclick="showSheet('expired')">已过期待办：查看详情并补录处理结果</button>
+              </div>
+            </div>
+          </section>
+        </div>
+
+        <nav class="tabbar" aria-label="底部导航">
+          <button class="tab active" data-tab="home" onclick="go('home')"><i>H</i><span>首页</span></button>
+          <button class="tab" data-tab="customers" onclick="go('customers')"><i>C</i><span>客户</span></button>
+          <button class="tab" data-tab="marketing" onclick="go('marketing')"><i>M</i><span>营销</span></button>
+          <button class="tab" data-tab="mine" onclick="go('mine')"><i>P</i><span>我的</span></button>
+        </nav>
+
+        <div class="sheet-backdrop" id="sheet" onclick="closeSheet(event)"><div class="sheet" id="sheetContent"></div></div>
+      </div>
+    </section>
+
+    <aside class="guide">
+      <h1>移动端客户经营工具 · 原型说明</h1>
+      <p>本 HTML 单页原型按 PRD v1.0 与 9 项澄清口径实现，可在左侧手机框内完成页面跳转、筛选、客户详情、待办状态、营销发送确认、权限/异常态验证。P0 回归缺口已补齐：优先联系 TOP10 完整展示 10 条可验证样本，客户列表支持姓名、手机号后四位、客户号搜索且受管户权限约束。</p>
+      <h2>页面清单</h2>
+      <table><tr><th>页面</th><th>覆盖内容</th><th>对应 PRD</th></tr><tr><td>首页工作台</td><td>当日待办、优先联系 TOP10、客户/资产概览、最近动态</td><td>F01-F04、AC01</td></tr><tr><td>待办列表</td><td>到期、资金变动、活动、久未联系及状态流转</td><td>F12-F15、7.2</td></tr><tr><td>客户列表</td><td>管户客户搜索、筛选、标签、空状态</td><td>F05-F07、AC07</td></tr><tr><td>客户详情</td><td>脱敏信息、资产总览、产品持仓、动态、营销动作</td><td>F08-F11、AC02-AC04</td></tr><tr><td>营销工具</td><td>后端模板、客户选择、内容预览、二次确认、发送记录</td><td>F16-F18、AC06</td></tr><tr><td>我的/边界场景</td><td>数据缺失、越权、发送失败、过期待办</td><td>AC08-AC10、边界场景</td></tr></table>
+      <h2>交互说明</h2>
+      <ul><li>首页待办卡片可进入待办列表；待办列表可切换“待处理/跟进中/已完成/已忽略/已过期”。</li><li>优先联系排序按确认口径：到期 > 资金变动 > 资产规模 > 久未联系；详情展示全部触发原因。</li><li>客户列表仅展示名下管户客户；支持按姓名、手机号后四位、客户号（如 CUST-10005）搜索；输入非管户客户号 CUST-90001 或不存在客户号时展示受权限约束的空状态。</li><li>客户详情中姓名、手机号、身份证号均以掩码展示；查看、发送、标记、忽略动作均提示留痕。</li><li>营销工具仅允许选择已审批模板；AI 自由生成示例会触发合规阻断。</li><li>企微发送前二次确认明确：仅支持已添加企微客户，推送后仍需在企业微信“群发助手”完成发送，结果可回写。</li></ul>
+      <h2>状态与边界覆盖</h2>
+      <div class="pill-line"><span class="tag orange">产品到期</span><span class="tag red">资金流出 30% 或 >10万</span><span class="tag green">活动：未报名/待领奖/已领奖</span><span class="tag blue">30天未联系</span><span class="tag">T+1 更新</span><span class="tag red">越权拦截</span><span class="tag orange">字段缺失</span><span class="tag red">发送失败</span></div>
+      <h2>风险项</h2>
+      <p>到期提醒窗口在 PRD 原文中仍保留“默认 1-7 天/可配置”描述，PJM 澄清为“按当前确认口径推进”；本原型按 1-7 天和今日到期进行页面呈现，若业务后续调整窗口，仅需修改待办筛选与状态文案。</p>
+    </aside>
+  </main>
+
+  <script>
+    const customers = [
+      { id: 'c1', customerNo: 'CUST-10001', name: '王**', full: '王先生', phone: '138****2345', idNo: '500*** **** **** 921X', level: '私行', aum: 520, reason: '稳盈理财 50万 今日到期', rank: 1, tags: ['到期', '高资产'], status: '待处理', assets: [40, 30, 20, 10], activity: '待领奖', wecom: true, lastContact: 12 },
+      { id: 'c2', customerNo: 'CUST-10002', name: '何**', full: '何女士', phone: '139****6721', idNo: '500*** **** **** 883X', level: '钻石', aum: 388, reason: '安心理财 80万 明日到期', rank: 2, tags: ['到期', '高资产'], status: '待处理', assets: [30, 42, 18, 10], activity: '未报名', wecom: true, lastContact: 8 },
+      { id: 'c3', customerNo: 'CUST-10003', name: '赵**', full: '赵女士', phone: '136****8888', idNo: '350*** **** **** 112X', level: '金卡', aum: 236, reason: '昨日资产流出 12.8万，超过 10万阈值', rank: 3, tags: ['资金变动', '紧急'], status: '跟进中', assets: [35, 22, 28, 15], activity: '未报名', wecom: true, lastContact: 3 },
+      { id: 'c4', customerNo: 'CUST-10004', name: '孙**', full: '孙先生', phone: '137****9012', idNo: '350*** **** **** 219X', level: '白金', aum: 180, reason: '近一日资产流出 34%，达到资金流出阈值', rank: 4, tags: ['资金变动', '紧急'], status: '待处理', assets: [42, 18, 25, 15], activity: '未报名', wecom: true, lastContact: 6 },
+      { id: 'c5', customerNo: 'CUST-10005', name: '陈**', full: '陈女士', phone: '159****8765', idNo: '420*** **** **** 663X', level: '钻石', aum: 820, reason: '资产规模 ¥820万，可优先开展高净值维护', rank: 5, tags: ['高资产'], status: '待处理', assets: [28, 36, 18, 18], activity: '待领奖', wecom: true, lastContact: 20 },
+      { id: 'c6', customerNo: 'CUST-10006', name: '林**', full: '林先生', phone: '150****4321', idNo: '310*** **** **** 427X', level: '私行', aum: 760, reason: '资产规模 ¥760万，可补充高净值维护', rank: 6, tags: ['高资产'], status: '待处理', assets: [36, 32, 22, 10], activity: '已领奖', wecom: true, lastContact: 18 },
+      { id: 'c7', customerNo: 'CUST-10007', name: '吴**', full: '吴女士', phone: '158****2468', idNo: '420*** **** **** 356X', level: '私行', aum: 650, reason: '资产规模 ¥650万，近期无到期/资金流出事项', rank: 7, tags: ['高资产'], status: '跟进中', assets: [45, 25, 20, 10], activity: '未报名', wecom: true, lastContact: 15 },
+      { id: 'c8', customerNo: 'CUST-10008', name: '刘**', full: '刘先生', phone: '188****5544', idNo: '440*** **** **** 221X', level: '白金', aum: 155, reason: '32 天未联系，来源覆盖企微、电话、线下拜访', rank: 8, tags: ['久未联系'], status: '已忽略', assets: [55, 18, 17, 10], activity: '已领奖', wecom: false, lastContact: 32 },
+      { id: 'c9', customerNo: 'CUST-10009', name: '黄**', full: '黄女士', phone: '135****7788', idNo: '500*** **** **** 618X', level: '金卡', aum: 128, reason: '45 天未联系，需恢复日常维护', rank: 9, tags: ['久未联系'], status: '待处理', assets: [50, 20, 20, 10], activity: '未报名', wecom: true, lastContact: 45 },
+      { id: 'c10', customerNo: 'CUST-10010', name: '周**', full: '周女士', phone: '186****0000', idNo: '310*** **** **** 870X', level: '普通', aum: 48, reason: '客户联系方式缺失，禁止企微发送', rank: 10, tags: ['数据异常'], status: '已过期', assets: [70, 0, 20, 10], activity: '未报名', wecom: false, lastContact: 9 }
+    ];
+    let currentFilter = '全部';
+    let lastPage = 'home';
+
+    function go(page) {
+      if (page !== 'detail') lastPage = document.querySelector('.page.active')?.id || 'home';
+      document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+      document.getElementById(page).classList.add('active');
+      document.getElementById('content').scrollTop = 0;
+      document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === page));
+      const titles = { home: '客户经营助手', customers: '我的客户', marketing: '营销工具', mine: '我的中心', todoPage: '待办列表', detail: '客户详情' };
+      document.getElementById('topTitle').textContent = titles[page] || '客户经营助手';
+      if (page === 'customers') renderCustomers();
+      if (page === 'home') renderPriority();
+    }
+
+    function historyBack() { go(lastPage === 'detail' ? 'home' : lastPage); }
+
+    function card(customer) {
+      const className = customer.tags.includes('紧急') ? 'urgent' : customer.tags.includes('到期') ? 'warning-line' : '';
+      return `<button class="customer-card ${className}" onclick="openDetail('${customer.id}')"><div class="row"><div class="left"><div class="avatar">${customer.rank}</div><div><div class="name">${customer.name} · ${customer.level}</div><div class="sub">客户号 ${customer.customerNo} · ${customer.phone} · AUM ¥${customer.aum}万 · ${customer.status}</div></div></div><span class="tag blue">#${customer.rank}</span></div><div class="tags">${customer.tags.map(tagClass).join('')}</div><div class="reason">${customer.reason}</div></button>`;
+    }
+
+    function tagClass(t) {
+      const cls = t === '紧急' || t === '资金变动' ? 'red' : t === '到期' ? 'orange' : t === '活动' || t === '高资产' ? 'green' : t === '久未联系' ? 'blue' : '';
+      return `<span class="tag ${cls}">${t}</span>`;
+    }
+
+    function renderPriority() {
+      document.getElementById('priorityList').innerHTML = customers.slice(0, 10).map(card).join('');
+    }
+
+    function renderCustomers() {
+      const input = (document.getElementById('searchInput')?.value || '').trim();
+      const filters = ['全部', '到期', '活动', '资金变动', '久未联系', '数据异常'];
+      document.getElementById('customerFilters').innerHTML = filters.map(f => `<button class="filter ${currentFilter === f ? 'active' : ''}" onclick="setFilter('${f}')">${f}</button>`).join('');
+      const normalizedInput = input.toUpperCase();
+      const list = customers.filter(c => (currentFilter === '全部' || c.tags.includes(currentFilter)) && (!input || c.name.includes(input) || c.phone.slice(-4).includes(input) || c.phone.includes(input) || c.customerNo.toUpperCase().includes(normalizedInput)));
+      const emptyText = /^CUST-90001$/i.test(input)
+        ? '无权限查看该客户号对应客户；非管户客户不会出现在搜索结果中。'
+        : '无匹配管户客户。请确认姓名、手机号后四位或客户号是否正确；越权客户不会出现在搜索结果中。';
+      document.getElementById('customerList').innerHTML = list.length ? list.map(card).join('') : `<div class="card empty">${emptyText}</div>`;
+    }
+
+    function setFilter(f) { currentFilter = f; renderCustomers(); }
+
+    function openTodo(type) {
+      go('todoPage');
+      const statuses = ['全部', '待处理', '跟进中', '已完成', '已忽略', '已过期'];
+      document.getElementById('todoTitle').textContent = `${type}待办`;
+      document.getElementById('todoFilters').innerHTML = statuses.map((s, i) => `<button class="filter ${i === 0 ? 'active' : ''}" onclick="filterTodo(this, '${type}', '${s}')">${s}</button>`).join('');
+      renderTodo(type, '全部');
+    }
+
+    function filterTodo(btn, type, status) {
+      btn.parentElement.querySelectorAll('.filter').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      renderTodo(type, status);
+    }
+
+    function renderTodo(type, status) {
+      const list = customers.filter(c => (type === '全部' || c.tags.includes(type) || c.reason.includes(type)) && (status === '全部' || c.status === status));
+      const rows = list.map(c => `<div class="list-item"><div class="row"><strong>${c.name} · ${c.status}</strong>${tagClass(c.tags[0])}</div><div class="sub">${c.reason}</div><div class="tags"><button class="secondary-btn" onclick="openDetail('${c.id}')">查看详情</button><button class="primary-btn" onclick="showSheet('audit')">标记处理</button><button class="ghost-btn" onclick="showSheet('ignore')">忽略</button></div></div>`).join('');
+      document.getElementById('todoList').innerHTML = rows || '<div class="empty">当前状态下暂无待办</div>';
+    }
+
+    function openDetail(id) {
+      const c = customers.find(x => x.id === id);
+      lastPage = document.querySelector('.page.active')?.id || 'home';
+      go('detail');
+      document.getElementById('detailBody').innerHTML = `<div class="detail-head"><div class="row"><div><div class="name" style="font-size:20px">${c.full}</div><div class="sub">客户号 ${c.customerNo} · ${c.phone} · 身份证 ${c.idNo} · ${c.level}</div></div><span class="tag" style="background:rgba(255,255,255,.18);color:white">管户客户</span></div><div class="tags">${c.tags.map(tagClass).join('')}</div></div><div class="card"><div class="section-title"><h2>资产总览</h2><small>T+1 更新 2026-05-26 08:00</small></div><div class="metrics"><div class="metric"><span>AUM</span><strong>¥${c.aum}万</strong></div><div class="metric"><span>存款</span><strong>¥${Math.round(c.aum*c.assets[0]/100)}万</strong></div><div class="metric"><span>理财</span><strong>¥${Math.round(c.aum*c.assets[1]/100)}万</strong></div><div class="metric"><span>贷款</span><strong>${c.assets[3] ? '¥' + Math.round(c.aum*c.assets[3]/100) + '万' : '暂无数据'}</strong></div></div><div class="asset-bar">${c.assets.map(x => `<span style="width:${x}%"></span>`).join('')}</div><div class="sub">存款 / 理财 / 基金 / 贷款，缺失字段展示“暂无数据”。</div></div><div class="card"><div class="section-title"><h2>产品持仓与到期提醒</h2><small>按到期日升序</small></div><div class="list"><div class="list-item product-due"><div class="row"><strong>稳盈理财 50万</strong><span class="tag orange">今日到期</span></div><div class="sub">收益率 3.2% · 到期日 2026-05-26 · 剩余 0 天</div></div><div class="list-item"><div class="row"><strong>月享基金 22万</strong><span class="tag blue">持仓中</span></div><div class="sub">收益率 2.8% · 到期日 暂无数据</div></div></div></div><div class="card"><div class="section-title"><h2>商机动态</h2><small>来源与时间可追溯</small></div><div class="timeline"><div class="timeline-item">${c.reason}<small>今日 09:12 · 系统规则触发</small></div><div class="timeline-item" style="border-color:var(--success)">活动状态：${c.activity}<small>昨日 18:02 · 活动系统</small></div><div class="timeline-item" style="border-color:var(--warning)">最近联系：${c.lastContact} 天前<small>企微/电话/线下拜访汇总</small></div></div></div><div class="card"><div class="section-title"><h2>营销动作</h2><small>动作均留痕</small></div><div class="action-panel"><button class="secondary-btn" onclick="showSheet('copyScript')">复制话术</button><button class="primary-btn" onclick="go('marketing')">发送模板</button><button class="secondary-btn" onclick="showSheet('audit')">记录联系</button><button class="secondary-btn" onclick="showSheet('remind')">设置提醒</button></div></div>`;
+    }
+
+    function selectTemplate(btn, name) {
+      document.querySelectorAll('.template').forEach(t => t.classList.remove('selected'));
+      btn.classList.add('selected');
+      document.getElementById('templateName').textContent = name;
+      if (name.includes('AI')) showSheet('riskBlock');
+    }
+
+    function showSheet(type) {
+      const map = {
+        messages: `<h3>通知</h3><div class="list"><div class="list-item">今日到期待办新增 2 条</div><div class="list-item">批量推送结果已回写，1 条失败需处理</div></div>`,
+        dataFreshness: `<h3>数据更新说明</h3><p>资产、持仓、收益率、到期日字段均按 T+1 更新；关键页面展示更新时间。若超过业务允许范围，页面提示数据过期。</p>`,
+        unauthorized: `<h3>无权限查看</h3><div class="notice error">该客户不属于当前客户经理管户范围，不可搜索、不可进入详情、不可批量触达。本次拦截将记录操作人、时间、客户、动作与结果。</div>`,
+        dataMissing: `<h3>数据异常待确认</h3><p>到期金额为空时展示“暂无数据”，不得展示 0；缺少到期日的产品不进入即将到期排序，仅进入数据异常待确认。</p>`,
+        sendConfirm: `<h3>发送前确认</h3><div class="notice warn">仅支持已添加企微客户。确认后系统将模板内容推送至企业微信，客户经理仍需在“群发助手”完成发送。</div><div class="metrics"><div class="metric"><span>客户数</span><strong>2人</strong></div><div class="metric"><span>渠道</span><strong>企业微信</strong></div></div><div class="split" style="margin-top:12px"><button class="secondary-btn" onclick="hideSheet()">取消</button><button class="primary-btn" onclick="showSheet('sendResult')">确认推送</button></div>`,
+        sendResult: `<h3>发送结果</h3><div class="list"><div class="list-item"><div class="row"><strong>王**</strong><span class="tag blue">待群发助手发送</span></div><div class="sub">模板已推送，等待客户经理在企业微信完成发送。</div></div><div class="list-item"><div class="row"><strong>周**</strong><span class="tag red">失败</span></div><div class="sub">失败原因：未添加企微客户或联系方式缺失。支持补充后重试。</div></div></div>`,
+        riskBlock: `<h3>合规阻断</h3><div class="notice error">当前内容疑似 AI 自由生成或包含收益承诺，不能发送。请改用后端已审批模板；阻断动作会进入审计留痕。</div>`,
+        audit: `<h3>操作留痕</h3><p>已记录操作人李经理、操作时间、客户、动作类型、处理结果。待办可切换为跟进中或已完成。</p>`,
+        ignore: `<h3>忽略待办</h3><p>忽略前必须选择原因，记录留痕，可在已忽略列表恢复。</p><select class="search"><option>客户已电话确认暂不处理</option><option>信息重复</option><option>客户暂不可联系</option></select><button class="primary-btn" style="width:100%" onclick="showSheet('audit')">确认忽略</button>`,
+        expired: `<h3>已过期待办</h3><p>活动/到期窗口已过且未处理，可查看详情并补录处理结果，补录动作进入审计。</p>`,
+        copyScript: `<h3>已复制话术</h3><p>复制内容来自后端已审批模板，可粘贴至企微或电话跟进记录，不包含收益承诺。</p>`,
+        remind: `<h3>设置提醒</h3><p>可设置后续跟进时间，客户状态转为跟进中。</p>`
+      };
+      document.getElementById('sheetContent').innerHTML = (map[type] || '') + '<button class="ghost-btn" style="width:100%;margin-top:14px" onclick="hideSheet()">关闭</button>';
+      document.getElementById('sheet').classList.add('active');
+    }
+    function hideSheet() { document.getElementById('sheet').classList.remove('active'); }
+    function closeSheet(e) { if (e.target.id === 'sheet') hideSheet(); }
+
+    renderPriority();
+    renderCustomers();
+  </script>
+</body>
+</html>
