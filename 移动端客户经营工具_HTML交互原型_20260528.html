@@ -1,0 +1,374 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>移动端客户经营工具 HTML 交互原型 v1.1</title>
+  <style>
+    :root {
+      --primary: #2563eb;
+      --primary-dark: #1d4ed8;
+      --secondary: #3b82f6;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --bg: #f8fafc;
+      --surface: #ffffff;
+      --text: #0f172a;
+      --muted: #64748b;
+      --border: #e2e8f0;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: #e5edf8;
+      color: var(--text);
+      font-family: "IBM Plex Sans", "PingFang SC", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    .phone {
+      width: 390px;
+      min-height: 844px;
+      margin: 24px auto;
+      border-radius: 32px;
+      overflow: hidden;
+      background: var(--bg);
+      box-shadow: 0 24px 80px rgba(15, 23, 42, 0.22);
+      position: relative;
+    }
+    .topbar {
+      height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 18px;
+      background: rgba(255, 255, 255, 0.92);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 5;
+    }
+    .brand { font-size: 18px; font-weight: 700; }
+    .top-actions { display: flex; gap: 10px; align-items: center; }
+    .icon-btn, .back-btn {
+      min-width: 44px;
+      min-height: 44px;
+      border: 0;
+      border-radius: 14px;
+      background: #eff6ff;
+      color: var(--primary);
+      font-size: 18px;
+      font-weight: 700;
+    }
+    main { padding: 16px 16px 92px; }
+    .page { display: none; animation: fadeIn 160ms ease-out; }
+    .page.active { display: block; }
+    @keyframes fadeIn { from { opacity: .3; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+    .hero {
+      border-radius: 22px;
+      padding: 18px;
+      color: #fff;
+      background: linear-gradient(135deg, var(--primary-dark), var(--secondary));
+      box-shadow: 0 16px 30px rgba(37, 99, 235, 0.24);
+    }
+    .hero h1 { margin: 0 0 6px; font-size: 22px; }
+    .hero p { margin: 0; color: rgba(255,255,255,.82); font-size: 13px; }
+    .kpis { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 16px; }
+    .kpi { padding: 10px 6px; border-radius: 14px; background: rgba(255,255,255,.14); text-align: center; }
+    .num { font-weight: 800; font-variant-numeric: tabular-nums; font-size: 18px; }
+    .label { margin-top: 4px; font-size: 11px; color: rgba(255,255,255,.8); }
+    .section { margin-top: 18px; }
+    .section-title { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+    .section-title h2 { margin: 0; font-size: 16px; }
+    .link-btn { border: 0; background: transparent; color: var(--primary); font-weight: 700; min-height: 44px; padding: 0 4px; }
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 14px;
+      box-shadow: 0 8px 20px rgba(15, 23, 42, 0.04);
+      margin-bottom: 10px;
+    }
+    .todo-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+    .todo-card { min-height: 92px; }
+    .todo-card strong { display: block; font-size: 20px; margin: 6px 0; }
+    .tag { display: inline-flex; align-items: center; border-radius: 999px; padding: 3px 8px; font-size: 11px; font-weight: 700; background: #eff6ff; color: var(--primary); }
+    .tag.warn { background: #fef3c7; color: #92400e; }
+    .tag.danger { background: #fee2e2; color: #b91c1c; }
+    .tag.ok { background: #dcfce7; color: #047857; }
+    .entry-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+    .entry {
+      border: 1px solid var(--border);
+      background: #fff;
+      border-radius: 16px;
+      padding: 10px 6px;
+      min-height: 76px;
+      text-align: center;
+      color: var(--text);
+      font-weight: 700;
+    }
+    .entry span { display: block; color: var(--primary); font-size: 13px; margin-bottom: 8px; }
+    .customer { display: flex; gap: 12px; align-items: flex-start; cursor: pointer; }
+    .avatar { width: 46px; height: 46px; border-radius: 16px; background: linear-gradient(135deg, #dbeafe, #bfdbfe); color: var(--primary-dark); display: grid; place-items: center; font-weight: 800; }
+    .customer-info { flex: 1; }
+    .row { display: flex; justify-content: space-between; gap: 10px; align-items: center; }
+    .muted { color: var(--muted); font-size: 12px; line-height: 1.6; }
+    .amount { font-weight: 800; font-variant-numeric: tabular-nums; }
+    .toolbar { display: flex; gap: 8px; margin: 12px 0; }
+    input, select {
+      width: 100%;
+      min-height: 44px;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 0 12px;
+      font-size: 14px;
+      background: #fff;
+    }
+    .primary-btn, .ghost-btn {
+      min-height: 44px;
+      border-radius: 14px;
+      border: 0;
+      padding: 0 14px;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+    .primary-btn { color: #fff; background: linear-gradient(135deg, var(--primary), var(--secondary)); }
+    .ghost-btn { color: var(--primary); background: #eff6ff; }
+    .tabbar {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      height: 74px;
+      background: rgba(255,255,255,.95);
+      border-top: 1px solid var(--border);
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      z-index: 10;
+    }
+    .tab {
+      border: 0;
+      background: transparent;
+      color: var(--muted);
+      font-weight: 700;
+      font-size: 12px;
+    }
+    .tab.active { color: var(--primary); }
+    .tab span { display: block; font-size: 20px; margin-bottom: 4px; }
+    .detail-block h3 { margin: 0 0 10px; font-size: 15px; }
+    .info-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+    .info-item { padding: 10px; border-radius: 14px; background: #f8fafc; }
+    .info-item b { display: block; font-size: 13px; margin-top: 4px; }
+    .asset-bar { height: 12px; border-radius: 999px; overflow: hidden; display: flex; background: #e2e8f0; margin: 10px 0; }
+    .asset-bar span:nth-child(1) { background: #3b82f6; width: 38%; }
+    .asset-bar span:nth-child(2) { background: #10b981; width: 34%; }
+    .asset-bar span:nth-child(3) { background: #8b5cf6; width: 20%; }
+    .asset-bar span:nth-child(4) { background: #f59e0b; width: 8%; }
+    .marketing-card { cursor: pointer; }
+    .checkbox-row { display: flex; align-items: center; gap: 10px; }
+    .checkbox-row input { width: 20px; min-height: 20px; }
+    .modal-mask {
+      position: absolute;
+      inset: 0;
+      background: rgba(15,23,42,.42);
+      display: none;
+      align-items: flex-end;
+      z-index: 20;
+    }
+    .modal-mask.active { display: flex; }
+    .modal {
+      width: 100%;
+      max-height: 82%;
+      overflow: auto;
+      background: #fff;
+      border-radius: 24px 24px 0 0;
+      padding: 18px 16px 24px;
+      box-shadow: 0 -20px 50px rgba(15, 23, 42, .2);
+    }
+    .modal h3 { margin: 0 0 14px; }
+    .field { margin-bottom: 12px; }
+    .field label { display: block; font-size: 12px; color: var(--muted); margin-bottom: 6px; }
+    .error-text { display: none; color: var(--danger); font-size: 12px; margin-top: 6px; }
+    .actions { display: flex; gap: 10px; margin-top: 14px; }
+    .actions button { flex: 1; }
+    .result-list { display: none; }
+    .result-list.active { display: block; }
+  </style>
+</head>
+<body>
+  <div class="phone">
+    <div class="topbar">
+      <button class="back-btn" onclick="goBack()">‹</button>
+      <div class="brand" id="title">今日工作台</div>
+      <div class="top-actions"><button class="icon-btn">铃</button><button class="icon-btn">我</button></div>
+    </div>
+
+    <main>
+      <section class="page active" id="home">
+        <div class="hero">
+          <h1>早上好，李经理</h1>
+          <p>今日重点：到期产品、活动达标、优先联系客户</p>
+          <div class="kpis">
+            <div class="kpi"><div class="num">856</div><div class="label">AUM/万</div></div>
+            <div class="kpi"><div class="num">128</div><div class="label">管户客户</div></div>
+            <div class="kpi"><div class="num">23</div><div class="label">待处理</div></div>
+            <div class="kpi"><div class="num">94%</div><div class="label">月达成</div></div>
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="section-title"><h2>当日待办汇总</h2><button class="link-btn" onclick="showPage('customers')">查看名单</button></div>
+          <div class="todo-grid">
+            <div class="card todo-card"><span class="tag danger">产品到期</span><strong>8</strong><div class="muted">1-7 天内到期</div></div>
+            <div class="card todo-card"><span class="tag warn">待联系</span><strong>6</strong><div class="muted">等待回复超 3 天</div></div>
+            <div class="card todo-card"><span class="tag ok">活动达标</span><strong>5</strong><div class="muted">可领取权益</div></div>
+            <div class="card todo-card"><span class="tag">生日纪念</span><strong>4</strong><div class="muted">7 天内生日</div></div>
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="section-title"><h2>高频经营入口</h2></div>
+          <div class="entry-grid">
+            <button class="entry" onclick="showPage('customers')"><span>客户</span>客户列表</button>
+            <button class="entry" onclick="showPage('marketing')"><span>营销</span>活动名单</button>
+            <button class="entry" onclick="showPage('customers')"><span>到期</span>产品到期</button>
+            <button class="entry" onclick="showPage('marketing')"><span>群发</span>批量触达</button>
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="section-title"><h2>优先联系客户 TOP10</h2><button class="link-btn" onclick="showPage('customers')">全部</button></div>
+          <div class="card customer" onclick="openDetail('张明')"><div class="avatar">张</div><div class="customer-info"><div class="row"><b>张明</b><span class="tag danger">明日到期</span></div><div class="muted">稳盈理财 ¥50万 · 收益率 3.2% · 意向强</div></div></div>
+          <div class="card customer" onclick="openDetail('陈华')"><div class="avatar">陈</div><div class="customer-info"><div class="row"><b>陈华</b><span class="tag ok">活动达标</span></div><div class="muted">可领取权益 · 适合养老主题产品沟通</div></div></div>
+        </div>
+      </section>
+
+      <section class="page" id="customers">
+        <div class="toolbar"><input placeholder="搜索客户姓名/手机号" /><button class="ghost-btn" onclick="openFilter('customer')">高级筛选</button></div>
+        <div class="card customer" onclick="openDetail('张明')"><div class="avatar">张</div><div class="customer-info"><div class="row"><b>张明</b><span class="amount">AUM ¥720万</span></div><div class="muted">私行客户 · 稳健型 · 持仓：存款/理财/基金</div><div><span class="tag danger">产品到期</span> <span class="tag">重点客户</span></div></div></div>
+        <div class="card customer" onclick="openDetail('陈华')"><div class="avatar">陈</div><div class="customer-info"><div class="row"><b>陈华</b><span class="amount">AUM ¥360万</span></div><div class="muted">财富客户 · 积极型 · 持仓：理财/基金</div><div><span class="tag ok">活动达标</span></div></div></div>
+        <div class="card customer" onclick="openDetail('林雨')"><div class="avatar">林</div><div class="customer-info"><div class="row"><b>林雨</b><span class="amount">AUM ¥96万</span></div><div class="muted">潜力客户 · 谨慎型 · 持仓：存款</div><div><span class="tag warn">待联系</span></div></div></div>
+      </section>
+
+      <section class="page" id="detail">
+        <div class="section-title"><h2 id="detailName">张明</h2><span class="tag">重点客户</span></div>
+        <div class="card detail-block"><h3>基础信息</h3><div class="info-grid"><div class="info-item"><span class="muted">性别/年龄</span><b>男 / 42岁</b></div><div class="info-item"><span class="muted">生日</span><b>08-18</b></div><div class="info-item"><span class="muted">客户类型</span><b>私行客户</b></div><div class="info-item"><span class="muted">风险评级</span><b>稳健型</b></div></div></div>
+        <div class="card detail-block"><h3>价值分析</h3><div class="info-grid"><div class="info-item"><span class="muted">AUM</span><b>¥720万</b></div><div class="info-item"><span class="muted">本年新客</span><b>否</b></div><div class="info-item"><span class="muted">三年峰值 AUM</span><b>¥860万</b></div><div class="info-item"><span class="muted">较峰值差额</span><b>¥-140万</b></div></div></div>
+        <div class="card detail-block"><h3>资产总览</h3><div class="asset-bar"><span></span><span></span><span></span><span></span></div><div class="muted">存款 ¥270万 · 理财 ¥245万 · 基金 ¥144万 · 贷款 ¥61万</div></div>
+        <div class="card detail-block"><h3>产品配置</h3><div class="muted">最近产品到期：稳盈理财 ¥50万，明日到期，收益率 3.2%。</div></div>
+        <div class="card detail-block"><h3>商机信息</h3><div class="muted">大额转出预警：近 30 天转出 ¥80万；建议优先沟通续存方案。</div></div>
+        <div class="card detail-block"><h3>营销活动</h3><div class="muted">养老金融季可参与，权益券待领取；可从营销模块加入活动群发名单。</div></div>
+        <div class="card detail-block"><h3>渠道签约</h3><div class="muted">手机银行已签约；企业微信已绑定；代发工资：是；合作收单：否。</div></div>
+        <div class="card detail-block"><h3>基本信息</h3><div class="muted">手机号：138****1234；KYC重要信息：子女教育、稳健收益偏好。</div></div>
+      </section>
+
+      <section class="page" id="marketing">
+        <div class="card marketing-card" onclick="openMarketingList('养老金融季活动')"><div class="row"><b>养老金融季活动</b><span class="tag ok">活动视角</span></div><div class="muted">达标客户可领取权益，进入名单后勾选群发。</div></div>
+        <div class="card marketing-card" onclick="openMarketingList('稳盈理财续存产品')"><div class="row"><b>稳盈理财续存产品</b><span class="tag">产品视角</span></div><div class="muted">匹配到期理财客户，支持搜索与高级筛选。</div></div>
+      </section>
+
+      <section class="page" id="marketingList">
+        <div class="section-title"><h2 id="campaignTitle">养老金融季活动</h2><span class="tag">独立客户名单</span></div>
+        <div class="toolbar"><input placeholder="搜索名单内客户" /><button class="ghost-btn" onclick="openFilter('marketing')">高级筛选</button></div>
+        <div class="card checkbox-row"><input type="checkbox" class="candidate" checked /><div class="customer-info"><b>张明</b><div class="muted">私行客户 · 稳健型 · AUM ¥720万 · 持仓：理财/基金</div></div></div>
+        <div class="card checkbox-row"><input type="checkbox" class="candidate" /><div class="customer-info"><b>陈华</b><div class="muted">财富客户 · 积极型 · AUM ¥360万 · 持仓：理财/基金</div></div></div>
+        <div class="card checkbox-row"><input type="checkbox" class="candidate" /><div class="customer-info"><b>林雨</b><div class="muted">潜力客户 · 谨慎型 · AUM ¥96万 · 持仓：存款</div></div></div>
+        <button class="primary-btn" style="width:100%;" onclick="openConfirm()">二次确认群发</button>
+        <div class="result-list" id="sendResult">
+          <div class="section"><div class="card"><div class="row"><b>发送结果</b><span class="tag ok">成功 2</span></div><div class="muted">失败 1：林雨未绑定企业微信，需电话跟进。</div></div></div>
+        </div>
+      </section>
+
+      <section class="page" id="mine">
+        <div class="card"><b>我的业绩</b><div class="muted">本月达成率 94%，支行排名 3/28。</div></div>
+        <div class="card"><b>设置与帮助</b><div class="muted">消息提醒、客户分组、使用帮助。</div></div>
+      </section>
+    </main>
+
+    <nav class="tabbar">
+      <button class="tab active" data-tab="home" onclick="showPage('home')"><span>⌂</span>首页</button>
+      <button class="tab" data-tab="customers" onclick="showPage('customers')"><span>◎</span>客户</button>
+      <button class="tab" data-tab="marketing" onclick="showPage('marketing')"><span>◇</span>营销</button>
+      <button class="tab" data-tab="mine" onclick="showPage('mine')"><span>○</span>我的</button>
+    </nav>
+
+    <div class="modal-mask" id="filterModal">
+      <div class="modal">
+        <h3 id="filterTitle">高级筛选</h3>
+        <div class="field"><label>客户类型</label><select><option>全部</option><option>私行客户</option><option>财富客户</option><option>创富客户</option><option>有效客户</option><option>大众客户</option><option>潜力客户</option></select></div>
+        <div class="field"><label>风险偏好</label><select><option>全部</option><option>激进型</option><option>积极型</option><option>稳健型</option><option>谨慎型</option><option>保守型</option></select></div>
+        <div class="field"><label>产品持仓</label><select><option>全部</option><option>存款</option><option>理财</option><option>基金</option></select></div>
+        <div class="field"><label>资产规模最小值（万元）</label><input id="aumMin" inputmode="decimal" placeholder="请输入最小值" /></div>
+        <div class="field"><label>资产规模最大值（万元）</label><input id="aumMax" inputmode="decimal" placeholder="请输入最大值" /><div class="error-text" id="aumError">资产规模需为非负数字，且最大值必须大于等于最小值。</div></div>
+        <div class="actions"><button class="ghost-btn" onclick="closeFilter()">重置/关闭</button><button class="primary-btn" onclick="applyFilter()">应用筛选</button></div>
+      </div>
+    </div>
+
+    <div class="modal-mask" id="confirmModal">
+      <div class="modal">
+        <h3>二次确认群发</h3>
+        <div class="card"><b>将向已勾选客户发送营销内容</b><div class="muted">发送前请确认客户名单、活动/产品内容和失败后跟进方式。</div></div>
+        <div class="actions"><button class="ghost-btn" onclick="closeConfirm()">取消</button><button class="primary-btn" onclick="sendCampaign()">确认发送</button></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const titles = {
+      home: '今日工作台', customers: '客户列表', detail: '客户详情', marketing: '营销工具', marketingList: '客户名单', mine: '我的中心'
+    };
+    const historyStack = ['home'];
+
+    function showPage(id, push = true) {
+      document.querySelectorAll('.page').forEach(page => page.classList.remove('active'));
+      document.getElementById(id).classList.add('active');
+      document.getElementById('title').textContent = titles[id];
+      document.querySelectorAll('.tab').forEach(tab => tab.classList.toggle('active', tab.dataset.tab === id));
+      if (push && historyStack[historyStack.length - 1] !== id) historyStack.push(id);
+    }
+
+    function goBack() {
+      if (historyStack.length > 1) historyStack.pop();
+      showPage(historyStack[historyStack.length - 1], false);
+    }
+
+    function openDetail(name) {
+      document.getElementById('detailName').textContent = name;
+      showPage('detail');
+    }
+
+    function openMarketingList(title) {
+      document.getElementById('campaignTitle').textContent = title;
+      showPage('marketingList');
+    }
+
+    function openFilter(source) {
+      document.getElementById('filterTitle').textContent = source === 'marketing' ? '营销名单高级筛选' : '客户列表高级筛选';
+      document.getElementById('filterModal').classList.add('active');
+    }
+
+    function closeFilter() {
+      document.getElementById('aumError').style.display = 'none';
+      document.getElementById('filterModal').classList.remove('active');
+    }
+
+    function applyFilter() {
+      const min = document.getElementById('aumMin').value.trim();
+      const max = document.getElementById('aumMax').value.trim();
+      const minNum = min === '' ? 0 : Number(min);
+      const maxNum = max === '' ? Infinity : Number(max);
+      const invalid = minNum < 0 || maxNum < 0 || Number.isNaN(minNum) || Number.isNaN(maxNum) || maxNum < minNum;
+      document.getElementById('aumError').style.display = invalid ? 'block' : 'none';
+      if (!invalid) closeFilter();
+    }
+
+    function openConfirm() { document.getElementById('confirmModal').classList.add('active'); }
+    function closeConfirm() { document.getElementById('confirmModal').classList.remove('active'); }
+    function sendCampaign() {
+      closeConfirm();
+      document.getElementById('sendResult').classList.add('active');
+    }
+  </script>
+</body>
+</html>
