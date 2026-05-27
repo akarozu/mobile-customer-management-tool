@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>目标客户选择</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main class="phone-shell subpage">
+    <header class="sub-header">
+      <button class="back-btn" onclick="history.back()" aria-label="返回">‹</button>
+      <div><p class="eyebrow">产品营销</p><h1>选择目标客户</h1></div>
+    </header>
+
+    <section class="summary-card">
+      <div><strong>稳盈 91 天固收理财</strong><span>已匹配 128 位客户</span></div>
+      <span class="selected-count">已选 3</span>
+    </section>
+
+    <section class="filter-card">
+      <div class="chips"><span class="active">7日内到期</span><span>强意向</span><span>AUM 50万+</span><span>未触达</span></div>
+    </section>
+
+    <section class="section-block customer-list">
+      <label class="customer-card selected">
+        <input type="checkbox" checked>
+        <div class="customer-main"><h3>李女士</h3><p>稳盈存款 50万 · 明日到期 · 风险 R2</p><small>建议切入点：到期承接，强调稳健期限短</small></div>
+        <span class="tag urgent">到期</span>
+      </label>
+      <label class="customer-card selected">
+        <input type="checkbox" checked>
+        <div class="customer-main"><h3>陈先生</h3><p>理财 30万 · 3日后到期 · 企微活跃</p><small>建议切入点：活动积分权益</small></div>
+        <span class="tag intent">强意向</span>
+      </label>
+      <label class="customer-card selected">
+        <input type="checkbox" checked>
+        <div class="customer-main"><h3>王女士</h3><p>存款 80万 · 7日后到期 · 风险 R2</p><small>建议切入点：分批配置降低流动性压力</small></div>
+        <span class="tag">高AUM</span>
+      </label>
+      <label class="customer-card disabled">
+        <input type="checkbox" disabled>
+        <div class="customer-main"><h3>赵先生</h3><p>基金偏好 · 风险 R4，与产品风险不匹配</p><small>异常场景：禁止勾选，需改选适配产品</small></div>
+        <span class="tag danger">不可选</span>
+      </label>
+    </section>
+
+    <a class="bottom-primary" href="wechat-confirm.html">生成企微群发确认</a>
+  </main>
+</body>
+</html>

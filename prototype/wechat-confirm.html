@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>企微群发确认</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main class="phone-shell subpage">
+    <header class="sub-header">
+      <button class="back-btn" onclick="history.back()" aria-label="返回">‹</button>
+      <div><p class="eyebrow">企微触达</p><h1>群发确认</h1></div>
+    </header>
+
+    <section class="summary-card">
+      <div><strong>发送对象</strong><span>3 位目标客户 · 企微可触达</span></div>
+      <span class="selected-count">待确认</span>
+    </section>
+
+    <section class="section-block">
+      <h2>消息预览</h2>
+      <div class="message-preview">
+        <p>您好，您持有的产品近期即将到期，我为您筛选了一款期限 91 天、风险等级 R2 的稳健理财产品，可用于到期资金承接。当前参与满额还可领取积分权益，方便的话我把产品详情发您参考。</p>
+        <div class="mini-product">
+          <b>稳盈 91 天固收理财</b>
+          <span>业绩比较基准 3.15% · 1万起购</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="section-block">
+      <h2>发送前校验</h2>
+      <div class="state-row success"><b>企微关系</b><span>3/3 可触达</span></div>
+      <div class="state-row success"><b>风险匹配</b><span>3/3 已通过</span></div>
+      <div class="state-row warning"><b>频控提醒</b><span>同一客户当日最多 1 次产品营销</span></div>
+    </section>
+
+    <section class="note-card">
+      <h2>异常处理</h2>
+      <p>若企微不可达、客户已退订或触达频控命中，发送结果页展示失败原因并支持重新筛选客户。</p>
+    </section>
+
+    <a class="bottom-primary" href="send-result.html">确认发送</a>
+  </main>
+</body>
+</html>

@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>产品列表 - 产品营销</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main class="phone-shell subpage">
+    <header class="sub-header">
+      <button class="back-btn" onclick="history.back()" aria-label="返回">‹</button>
+      <div><p class="eyebrow">产品营销</p><h1>产品列表</h1></div>
+    </header>
+
+    <section class="filter-card">
+      <div class="search-box">搜索产品名称 / 风险等级 / 到期承接</div>
+      <div class="chips"><span class="active">到期承接</span><span>稳健理财</span><span>基金定投</span><span>活动权益</span></div>
+    </section>
+
+    <section class="section-block">
+      <div class="section-title"><h2>推荐产品</h2><span>按客户机会排序</span></div>
+      <a class="product-card" href="product-detail.html">
+        <div class="product-head">
+          <div><h3>稳盈 91 天固收理财</h3><p>适配即将到期存款客户</p></div>
+          <span class="risk low">R2 稳健</span>
+        </div>
+        <div class="metrics-row">
+          <div><strong>3.15%</strong><span>业绩比较基准</span></div>
+          <div><strong>91天</strong><span>期限</span></div>
+          <div><strong>128人</strong><span>可推荐客户</span></div>
+        </div>
+        <div class="action-row"><span>活动权益：满 20 万享积分礼</span><b>查看详情</b></div>
+      </a>
+
+      <article class="product-card muted">
+        <div class="product-head">
+          <div><h3>月月享现金管理</h3><p>适配短期闲置资金</p></div>
+          <span class="risk">R1 低风险</span>
+        </div>
+        <div class="metrics-row">
+          <div><strong>2.30%</strong><span>近 7 日年化</span></div>
+          <div><strong>T+1</strong><span>赎回</span></div>
+          <div><strong>64人</strong><span>可推荐客户</span></div>
+        </div>
+      </article>
+    </section>
+
+    <section class="note-card">
+      <h2>状态说明</h2>
+      <p>产品列表支持搜索、标签筛选与排序；当前闭环选择“稳盈 91 天固收理财”进入产品详情。</p>
+    </section>
+  </main>
+</body>
+</html>
