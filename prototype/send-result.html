@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>发送结果</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main class="phone-shell subpage">
+    <header class="sub-header">
+      <button class="back-btn" onclick="history.back()" aria-label="返回">‹</button>
+      <div><p class="eyebrow">企微触达</p><h1>发送结果</h1></div>
+    </header>
+
+    <section class="result-card">
+      <div class="result-icon">✓</div>
+      <h2>企微群发已处理</h2>
+      <p>成功 3 位，失败 5 位；可重试客户 4 位，营销记录已同步至客户动态。</p>
+    </section>
+
+    <section class="section-block">
+      <h2>发送统计</h2>
+      <div class="state-row success"><b>成功数</b><span>3 位客户发送成功</span></div>
+      <div class="state-row warning"><b>失败数</b><span>5 位客户发送失败</span></div>
+      <div class="state-row warning"><b>可重试</b><span>客户不可达、企微关系异常、内容校验失败、系统异常</span></div>
+    </section>
+
+    <section class="section-block">
+      <h2>发送明细</h2>
+      <div class="state-row success"><b>李女士</b><span>发送成功 · 明日到期</span></div>
+      <div class="state-row success"><b>陈先生</b><span>发送成功 · 强意向</span></div>
+      <div class="state-row success"><b>王女士</b><span>发送成功 · 7日后到期</span></div>
+      <div class="state-row warning"><b>刘女士</b><span>客户不可达 · 可重试</span></div>
+      <div class="state-row warning"><b>周先生</b><span>企微关系异常 · 重新添加后重试</span></div>
+      <div class="state-row warning"><b>吴女士</b><span>权限不足 · 不允许重试</span></div>
+      <div class="state-row warning"><b>郑女士</b><span>内容校验失败 · 修改话术后重试</span></div>
+      <div class="state-row warning"><b>何先生</b><span>系统异常 · 稍后重试</span></div>
+    </section>
+
+    <section class="section-block">
+      <h2>失败重试入口</h2>
+      <div class="follow-card"><strong>批量重试 4 人</strong><span>排除权限不足客户</span></div>
+      <div class="follow-card"><strong>修改话术后重试</strong><span>处理内容校验失败</span></div>
+    </section>
+
+    <a class="bottom-secondary" href="marketing.html">返回营销首页</a>
+  </main>
+</body>
+</html>

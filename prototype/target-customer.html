@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>目标客户选择</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main class="phone-shell subpage">
+    <header class="sub-header">
+      <button class="back-btn" onclick="history.back()" aria-label="返回">‹</button>
+      <div><p class="eyebrow">产品营销</p><h1>选择目标客户</h1></div>
+    </header>
+
+    <section class="summary-card">
+      <div><strong>稳盈 91 天固收理财</strong><span>已匹配 128 位客户</span></div>
+      <span class="selected-count">已选 3</span>
+    </section>
+
+    <section class="filter-card">
+      <div class="chips"><span class="active">客户类型：大财富</span><span>风险偏好：R1-R2</span><span>产品持仓：到期</span><span>资产规模：50-300万</span><span>适配原因：到期承接</span><span>未持仓同类产品</span><span>按紧迫性排序</span></div>
+    </section>
+
+    <section class="section-block customer-list">
+      <label class="customer-card selected">
+        <input type="checkbox" checked>
+        <div class="customer-main"><h3>李女士</h3><p>大财富客户 · 资产 126.8万 · 风险 R2 · 未持仓同类</p><small>产品适配原因：稳盈存款 50万明日到期，偏好稳健短期限。</small></div>
+        <span class="tag urgent">到期</span>
+      </label>
+      <label class="customer-card selected">
+        <input type="checkbox" checked>
+        <div class="customer-main"><h3>陈先生</h3><p>潜力客户 · 资产 78.3万 · 风险 R2 · 理财 30万 3日后到期</p><small>产品适配原因：企微活跃，活动权益可叠加。</small></div>
+        <span class="tag intent">强意向</span>
+      </label>
+      <label class="customer-card selected">
+        <input type="checkbox" checked>
+        <div class="customer-main"><h3>王女士</h3><p>大财富客户 · 资产 82.4万 · 风险 R2 · 未持仓同类</p><small>产品适配原因：7日后到期，适合分批配置降低流动性压力。</small></div>
+        <span class="tag">高AUM</span>
+      </label>
+      <label class="customer-card disabled">
+        <input type="checkbox" disabled>
+        <div class="customer-main"><h3>赵先生</h3><p>基金偏好 · 风险 R4，与产品风险不匹配</p><small>异常场景：禁止勾选，需改选适配产品</small></div>
+        <span class="tag danger">不可选</span>
+      </label>
+    </section>
+
+    <a class="bottom-primary" href="wechat-confirm.html">生成企微群发确认</a>
+  </main>
+</body>
+</html>
