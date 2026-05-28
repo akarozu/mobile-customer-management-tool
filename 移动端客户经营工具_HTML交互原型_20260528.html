@@ -216,6 +216,12 @@
     .empty { border: 1px dashed var(--border); background: #fff; border-radius: 18px; padding: 20px; text-align: center; color: var(--muted); }
     .notice { border-left: 4px solid var(--warning); background: #fffbeb; }
     .blocked { border-left: 4px solid var(--danger); background: #fef2f2; }
+    .state-summary { display: none; margin: 8px 0 10px; padding: 10px 12px; border-radius: 14px; background: #eff6ff; color: var(--primary-dark); font-size: 12px; line-height: 1.6; }
+    .state-summary.active { display: block; }
+    .disabled { opacity: .45; cursor: not-allowed; }
+    .rank-dimension { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin: 10px 0; }
+    .rank-dimension button { min-height: 44px; border: 1px solid var(--border); border-radius: 14px; background: #fff; font-weight: 800; color: var(--muted); font-size: 12px; }
+    .rank-dimension button.active { color: #fff; border-color: var(--primary); background: var(--primary); }
     .case-table { width: 100%; border-collapse: collapse; font-size: 11px; }
     .case-table th, .case-table td { border-bottom: 1px solid var(--border); padding: 8px 4px; text-align: left; vertical-align: top; }
   </style>
@@ -293,10 +299,13 @@
       </section>
 
       <section class="page" id="customers">
-        <div class="toolbar"><input placeholder="搜索客户姓名/手机号/客户号" /><button class="ghost-btn" onclick="openFilter('customer')">高级筛选</button></div>
-        <button class="card customer clickable" onclick="openDetail('张*')"><div class="avatar">张</div><div class="customer-info"><div class="row"><b>张*</b><span class="amount">AUM ¥720万</span></div><div class="muted">138****6521 · 私行客户 · 稳健型 · 持仓：存款/理财/基金</div><div><span class="tag danger">产品到期</span> <span class="tag">重点客户</span></div></div></button>
-        <button class="card customer clickable" onclick="openDetail('陈*')"><div class="avatar">陈</div><div class="customer-info"><div class="row"><b>陈*</b><span class="amount">AUM ¥360万</span></div><div class="muted">139****4188 · 财富客户 · 积极型 · 持仓：理财/基金</div><div><span class="tag ok">活动达标</span></div></div></button>
-        <div class="empty">筛选无结果：展示空状态与“重置”入口，不展示“数据异常”筛选项。</div>
+        <div class="toolbar"><input id="customerSearch" placeholder="搜索客户姓名/手机号/客户号" onkeydown="if(event.key==='Enter') applyCustomerSearch()" /><button class="ghost-btn" onclick="applyCustomerSearch()">搜索</button><button class="ghost-btn" onclick="openFilter('customer')">高级筛选</button></div>
+        <div class="state-summary" id="customerSummary"></div>
+        <div id="customerRows">
+          <button class="card customer clickable" onclick="openDetail('张*')"><div class="avatar">张</div><div class="customer-info"><div class="row"><b>张*</b><span class="amount">AUM ¥720万</span></div><div class="muted">138****6521 · 客户号 C20260528001 · 私行客户 · 稳健型 · 持仓：存款/理财/基金</div><div><span class="tag danger">产品到期</span> <span class="tag">重点客户</span></div></div></button>
+          <button class="card customer clickable" onclick="openDetail('陈*')"><div class="avatar">陈</div><div class="customer-info"><div class="row"><b>陈*</b><span class="amount">AUM ¥360万</span></div><div class="muted">139****4188 · 客户号 C20260528002 · 财富客户 · 积极型 · 持仓：理财/基金</div><div><span class="tag ok">活动达标</span></div></div></button>
+        </div>
+        <div class="empty" id="customerEmpty" style="display:none;">暂无匹配客户，请调整关键词或筛选条件。<div class="actions"><button class="ghost-btn" onclick="resetCustomerList()">重置搜索与筛选</button></div></div>
       </section>
 
       <section class="page" id="detail">
@@ -304,10 +313,9 @@
         <div class="card detail-block"><h3>客户基础信息卡片</h3><div class="info-grid"><div class="info-item"><span class="muted">手机号</span><b>138****6521</b></div><div class="info-item"><span class="muted">AUM</span><b>¥720万</b></div><div class="info-item"><span class="muted">性别/年龄</span><b>男 / 42岁</b></div><div class="info-item"><span class="muted">生日</span><b>08-18</b></div><div class="info-item"><span class="muted">客户类型</span><b>私行客户</b></div><div class="info-item"><span class="muted">风险评级</span><b>稳健型</b></div></div></div>
         <div class="card detail-block"><h3>价值分析</h3><div class="info-grid"><div class="info-item"><span class="muted">三年峰值 AUM</span><b>¥860万</b></div><div class="info-item"><span class="muted">较峰值差额</span><b>¥-140万</b></div><div class="info-item"><span class="muted">最近产品到期</span><b>明日到期</b></div><div class="info-item"><span class="muted">代发/收单</span><b>代发是 · 收单否</b></div></div></div>
         <div class="card detail-block"><h3>资产总览</h3><div class="asset-bar"><span></span><span></span><span></span><span></span><span></span></div><div class="muted">存款 ¥270万 · 理财 ¥245万 · 基金 ¥144万 · 总贷款 ¥61万 · E 秒贷余额 ¥18万 · 零售贷款 ¥43万 · 资产总计 ¥720万</div></div>
-        <div class="segmented three"><button class="active">产品配置</button><button>商机信息</button><button>营销活动</button></div>
-        <div class="segmented"><button>渠道签约</button><button>基本信息</button></div>
-        <div class="card detail-block"><h3>产品配置</h3><div class="muted">产品到期提醒：稳盈理财 ¥50万，明日到期，剩余 1 天，优先处理。定期存款、结构性存款、理财产品、E 秒贷均保留展示位。</div></div>
-        <div class="card detail-block"><h3>商机信息 / 营销活动 / 渠道签约 / 基本信息</h3><div class="muted">CRM 商机支持 AI 话术和联系；养老金融季活动支持提醒/邀约；手机银行、微信动账、微信/支付宝绑卡、信用卡自动还款、生活缴费、云闪付支付绑卡展示签约状态；证件号 310********4321。</div></div>
+        <div class="segmented three"><button class="active" onclick="setDetailTab('产品配置')">产品配置</button><button onclick="setDetailTab('商机信息')">商机信息</button><button onclick="setDetailTab('营销活动')">营销活动</button></div>
+        <div class="segmented"><button onclick="setDetailTab('渠道签约')">渠道签约</button><button onclick="setDetailTab('基本信息')">基本信息</button></div>
+        <div class="card detail-block" id="detailTabContent"></div>
         <div class="action-grid"><button>拨打电话</button><button>AI 简报</button><button>添加邀约</button><button>客户动态</button></div>
       </section>
 
@@ -333,10 +341,10 @@
       </section>
 
       <section class="page" id="sendConfirm">
-        <div class="section-title"><h2>群发确认</h2><span class="tag">二次确认</span></div>
-        <div class="card"><b>发送对象：2 人</b><div class="muted">张* 138****6521、陈* 139****4188；内容需通过合规校验。</div></div>
-        <div class="field"><label>编辑话术</label><textarea>您好，您关注的养老金融季活动已达标，请及时领取权益。如需了解适配产品，我可以为您进一步说明。</textarea></div>
-        <div class="card notice"><b>合规提示</b><div class="muted">发送前必须确认客户名单、内容预览、风险适配与留痕结果。</div></div>
+        <div class="section-title"><h2 id="confirmTitle">群发确认</h2><span class="tag" id="confirmTag">二次确认</span></div>
+        <div class="card"><b id="confirmObject">发送对象：2 人</b><div class="muted" id="confirmList">张* 138****6521、陈* 139****4188；内容需通过合规校验。</div></div>
+        <div class="card notice"><b id="confirmComplianceTitle">合规提示</b><div class="muted" id="confirmCompliance">发送前必须确认客户名单、内容预览、风险适配与留痕结果。</div></div>
+        <div class="field"><label>编辑话术</label><textarea id="confirmText">您好，您关注的养老金融季活动已达标，请及时领取权益。如需了解适配产品，我可以为您进一步说明。</textarea></div>
         <div class="actions"><button class="ghost-btn" onclick="goBack()">取消</button><button class="primary-btn" onclick="sendCampaign()">确认发送</button></div>
       </section>
 
@@ -348,7 +356,7 @@
 
       <section class="page" id="sendResult">
         <div class="section-title"><h2>群发结果</h2><span class="tag ok">已留痕</span></div>
-        <div class="card"><div class="row"><b>发送成功</b><span class="amount">2 人</span></div><div class="muted">张*、陈* 已通过企业微信群发触达。</div></div>
+        <div class="card"><div class="row"><b id="sendResultSuccess">发送成功</b><span class="amount">2 人</span></div><div class="muted" id="sendResultDesc">张*、陈* 已通过企业微信群发触达。</div></div>
         <div class="card"><div class="row"><b>发送失败</b><span class="amount">1 人</span></div><div class="muted">失败原因：客户不可达、企微关系异常、权限不足、内容校验失败、系统异常均有展示位。</div></div>
         <div class="actions"><button class="ghost-btn">重试失败客户</button><button class="primary-btn" onclick="showPage('marketing')">完成</button></div>
       </section>
@@ -374,20 +382,27 @@
 
       <section class="page" id="assetSub">
         <div class="section-title"><h2 id="assetSubTitle">活期明细</h2><span class="tag">二级页</span></div>
-        <div class="toolbar"><select><option>按金额降序</option><option>按较月初变化降序</option><option>按客户类型筛选</option></select><button class="ghost-btn">排序</button></div>
-        <button class="card customer clickable" onclick="openDetail('张*')"><div class="avatar">张</div><div class="customer-info"><div class="row"><b>张*</b><span class="amount" id="assetAmount">活期余额 ¥86万</span></div><div class="muted">138****6521 · 私行客户 · AUM ¥720万 · 较月初 +¥8万 · 更新 09:30</div></div></button>
-        <button class="card customer clickable" onclick="openDetail('陈*')"><div class="avatar">陈</div><div class="customer-info"><div class="row"><b>陈*</b><span class="amount">当前金额 ¥42万</span></div><div class="muted">139****4188 · 财富客户 · AUM ¥360万 · 较月初 -¥3万 · 更新 09:30</div></div></button>
-        <div class="empty" id="assetEmpty">无活期资产客户时展示“暂无活期资产客户”，保留返回按钮。</div>
+        <div class="toolbar"><select id="assetSort" onchange="setAssetSort(this.value)"><option>按金额降序</option><option>按较月初变化降序</option><option>按客户类型筛选</option></select><button class="ghost-btn" onclick="toggleAssetEmpty()">筛选空状态</button></div>
+        <div class="state-summary active" id="assetSummary">当前排序：按金额降序；返回资产明细后再次进入保留当前分类与排序。</div>
+        <div id="assetRows">
+          <button class="card customer clickable" onclick="openDetail('张*')"><div class="avatar">张</div><div class="customer-info"><div class="row"><b>张*</b><span class="amount" id="assetAmount">活期余额 ¥86万</span></div><div class="muted" id="assetFields1">138****6521 · 私行客户 · AUM ¥720万 · 较月初 +¥8万 · 更新 09:30</div></div></button>
+          <button class="card customer clickable" onclick="openDetail('陈*')"><div class="avatar">陈</div><div class="customer-info"><div class="row"><b>陈*</b><span class="amount" id="assetAmount2">活期余额 ¥42万</span></div><div class="muted" id="assetFields2">139****4188 · 财富客户 · AUM ¥360万 · 较月初 -¥3万 · 更新 09:30</div></div></button>
+        </div>
+        <div class="empty" id="assetEmpty" style="display:none;">无活期资产客户时展示“暂无活期资产客户”，保留返回按钮。</div>
       </section>
 
       <section class="page" id="ranking">
         <div class="section-title"><h2>业绩排行榜</h2><span class="tag">二级页</span></div>
-        <div class="segmented three"><button class="active">个人</button><button>支行</button><button>分行</button></div>
-        <div class="segmented"><button class="active">周</button><button>月</button></div>
-        <div class="actions"><button class="ghost-btn">上一周期</button><button class="ghost-btn" disabled>下一周期</button></div>
-        <div class="card"><div class="row"><b>新增大财富客户数</b><span class="amount">3 / 28</span></div><div class="muted">当前客户经理本人高亮；无权限范围不可选。</div></div>
-        <div class="card"><div class="row"><b>E 秒贷客户数</b><span class="amount">8 / 42</span></div><div class="muted">支持普惠贷款客户数、当月新增客户数、资产规模净增维度切换。</div></div>
-        <div class="empty">无排行数据或无权限时展示空状态，不泄露排行数据。</div>
+        <div class="segmented three"><button class="active" onclick="setRankScope('个人')">个人</button><button onclick="setRankScope('支行')">支行</button><button onclick="setRankScope('分行')">分行</button></div>
+        <div class="segmented"><button class="active" onclick="setRankPeriod('周')">周</button><button onclick="setRankPeriod('月')">月</button></div>
+        <div class="rank-dimension"><button class="active" onclick="setRankDimension('新增大财富客户数')">新增大财富客户数</button><button onclick="setRankDimension('E 秒贷客户数')">E 秒贷客户数</button><button onclick="setRankDimension('普惠贷款客户数')">普惠贷款客户数</button><button onclick="setRankDimension('资产规模净增')">资产规模净增</button></div>
+        <div class="actions"><button class="ghost-btn" onclick="changeRankCycle(-1)">上一周期</button><button class="ghost-btn disabled" id="rankNext" onclick="changeRankCycle(1)">下一周期</button></div>
+        <div class="state-summary active" id="rankSummary">个人 · 周 · 本周期 · 新增大财富客户数；下一周期为未来周期，已置灰。</div>
+        <div id="rankRows">
+          <div class="card"><div class="row"><b id="rankMainName">新增大财富客户数</b><span class="amount" id="rankMainValue">3 / 28</span></div><div class="muted" id="rankMainDesc">当前客户经理本人高亮；支行/分行范围切换后数据区同步变化。</div></div>
+          <div class="card"><div class="row"><b>排名明细</b><span class="amount" id="rankListValue">李经理 第 3 名</span></div><div class="muted">支持个人、支行、分行范围；无权限范围不可选并展示提示。</div></div>
+        </div>
+        <div class="empty" id="rankEmpty" style="display:none;">当前范围无排行数据或无权限，不展示排行明细。</div>
       </section>
 
       <section class="page" id="baseline">
@@ -407,9 +422,9 @@
     <div class="modal-mask" id="filterModal">
       <div class="modal">
         <h3 id="filterTitle">高级筛选</h3>
-        <div class="field"><label>客户类型</label><select><option>全部</option><option>私行客户</option><option>财富客户</option><option>创富客户</option><option>有效客户</option><option>大众客户</option><option>潜力客户</option></select></div>
-        <div class="field"><label>风险偏好</label><select><option>全部</option><option>激进型</option><option>积极型</option><option>稳健型</option><option>谨慎型</option><option>保守型</option></select></div>
-        <div class="field"><label>产品持仓</label><select><option>全部</option><option>存款</option><option>理财</option><option>基金</option></select></div>
+        <div class="field"><label>客户类型</label><select id="filterType"><option>全部</option><option>私行客户</option><option>财富客户</option><option>创富客户</option><option>有效客户</option><option>大众客户</option><option>潜力客户</option></select></div>
+        <div class="field"><label>风险偏好</label><select id="filterRisk"><option>全部</option><option>激进型</option><option>积极型</option><option>稳健型</option><option>谨慎型</option><option>保守型</option></select></div>
+        <div class="field"><label>产品持仓</label><select id="filterProduct"><option>全部</option><option>存款</option><option>理财</option><option>基金</option></select></div>
         <div class="field"><label>资产规模最小值（万元）</label><input id="aumMin" inputmode="decimal" placeholder="请输入最小值" /></div>
         <div class="field"><label>资产规模最大值（万元）</label><input id="aumMax" inputmode="decimal" placeholder="请输入最大值" /><div class="error-text" id="aumError">资产规模需为非负数字，且最大值必须大于等于最小值。</div></div>
         <div class="actions"><button class="ghost-btn" onclick="closeFilter(true)">重置</button><button class="primary-btn" onclick="applyFilter()">确认</button></div>
@@ -435,6 +450,25 @@
     };
     const tabMap = { home: 'home', customers: 'customers', marketing: 'marketing', mine: 'mine' };
     const historyStack = ['home'];
+    let filterSource = 'customer';
+    let marketingContext = '活动';
+    let assetSortState = '按金额降序';
+    const assetTemplates = {
+      '活期明细': ['活期余额 ¥86万', '活期余额 ¥42万', '138****6521 · 私行客户 · AUM ¥720万 · 较月初 +¥8万 · 更新 09:30', '139****4188 · 财富客户 · AUM ¥360万 · 较月初 -¥3万 · 更新 09:30'],
+      '存款明细': ['存款余额 ¥220万', '存款余额 ¥128万', '产品数 3 · 最近到期日 2026-07-15 · 定期/结构性存款 · 较月初 +¥20万', '产品数 2 · 最近到期日 2026-08-01 · 大额存单 · 较月初 +¥6万'],
+      '理财明细': ['理财持仓金额 ¥180万', '理财持仓金额 ¥98万', '产品数 4 · 风险等级 R2 · 最近到期日 2026-06-18 · 浮动盈亏 +¥1.2万', '产品数 2 · 风险等级 R3 · 最近到期日 2026-07-02 · 浮动盈亏 -¥0.3万'],
+      '基金明细': ['基金持仓金额 ¥96万', '基金持仓金额 ¥48万', '产品数 5 · 风险等级 R3 · 浮动盈亏 +¥1.8万 · 最近交易 05-26', '产品数 3 · 风险等级 R4 · 浮动盈亏 -¥0.6万 · 最近交易 05-20'],
+      'E 秒贷明细': ['E 秒贷余额 ¥18万', 'E 秒贷余额 ¥9万', '还款状态 正常 · 最近还款日 2026-05-20 · 剩余期数 8 · 逾期 0 天', '还款状态 待还款 · 最近还款日 2026-05-18 · 剩余期数 5 · 逾期 0 天'],
+      '普惠贷款明细': ['普惠贷款余额 ¥43万', '普惠贷款余额 ¥26万', '企业名称 XX 商贸 · 还款状态 正常 · 最近还款日 2026-05-21 · 到期日 2027-05-21', '企业名称 XX 科技 · 还款状态 关注 · 最近还款日 2026-05-15 · 到期日 2027-03-10']
+    };
+    const rankState = { scope: '个人', period: '周', cycle: 0, dimension: '新增大财富客户数' };
+    const detailTabs = {
+      '产品配置': '<h3>产品配置</h3><div class="info-grid"><div class="info-item"><span class="muted">理财产品</span><b>稳盈理财 ¥50万 · 明日到期</b></div><div class="info-item"><span class="muted">定期存款</span><b>三年期 ¥120万 · 2026-07-15 到期</b></div><div class="info-item"><span class="muted">基金持仓</span><b>均衡组合 ¥96万 · 浮盈 ¥1.8万</b></div><div class="info-item"><span class="muted">贷款余额</span><b>E 秒贷 ¥18万 · 正常还款</b></div></div>',
+      '商机信息': '<h3>商机信息</h3><div class="info-grid"><div class="info-item"><span class="muted">商机类型</span><b>理财到期续存</b></div><div class="info-item"><span class="muted">优先级</span><b>P1 · 今日跟进</b></div><div class="info-item"><span class="muted">AI 话术</span><b>建议强调稳健续存与流动性安排</b></div><div class="info-item"><span class="muted">下一动作</span><b>电话联系 / 添加邀约</b></div></div>',
+      '营销活动': '<h3>营销活动</h3><div class="info-grid"><div class="info-item"><span class="muted">活动名称</span><b>养老金融季</b></div><div class="info-item"><span class="muted">活动状态</span><b>已达标未领奖</b></div><div class="info-item"><span class="muted">权益内容</span><b>养老权益券 ¥200</b></div><div class="info-item"><span class="muted">触达建议</span><b>企微提醒领取并交叉推荐产品</b></div></div>',
+      '渠道签约': '<h3>渠道签约</h3><div class="info-grid"><div class="info-item"><span class="muted">手机银行</span><b>已签约 · 月活 8 次</b></div><div class="info-item"><span class="muted">微信动账</span><b>已签约</b></div><div class="info-item"><span class="muted">微信/支付宝绑卡</span><b>微信已绑 · 支付宝未绑</b></div><div class="info-item"><span class="muted">信用卡/生活缴费/云闪付</span><b>自动还款已开通 · 生活缴费未开通 · 云闪付已绑</b></div></div>',
+      '基本信息': '<h3>基本信息</h3><div class="info-grid"><div class="info-item"><span class="muted">证件号</span><b>310********4321</b></div><div class="info-item"><span class="muted">开户地址</span><b>上海市浦东新区</b></div><div class="info-item"><span class="muted">职业/单位</span><b>企业高管 · XX 科技</b></div><div class="info-item"><span class="muted">最近联系</span><b>2 天前 · 电话沟通</b></div></div>'
+    };
     const priority = [
       ['1. 张*', '138****6521 · AUM ¥720万 · 私行客户 · 明日到期 · 最近联系 2 天前', 'danger'],
       ['2. 陈*', '139****4188 · AUM ¥360万 · 财富客户 · 活动达标未领奖', 'ok'],
@@ -472,9 +506,31 @@
     }
 
     function openPriorityList() { showPage('priorityList'); }
-    function openDetail(name) { document.getElementById('detailName').textContent = name; showPage('detail'); }
-    function setMarketingMode(mode) { document.querySelectorAll('#marketing .segmented button').forEach(btn => btn.classList.toggle('active', btn.textContent === mode)); }
+    function openDetail(name) { document.getElementById('detailName').textContent = name; setDetailTab('产品配置'); showPage('detail'); }
+    function setDetailTab(tabName) {
+      document.querySelectorAll('#detail .segmented button').forEach(btn => btn.classList.toggle('active', btn.textContent === tabName));
+      document.getElementById('detailTabContent').innerHTML = detailTabs[tabName];
+    }
+    function applyCustomerSearch() {
+      const keyword = document.getElementById('customerSearch').value.trim();
+      const noResult = keyword.includes('0000') || keyword.includes('无结果');
+      document.getElementById('customerRows').style.display = noResult ? 'none' : 'block';
+      document.getElementById('customerEmpty').style.display = noResult ? 'block' : 'none';
+      const summary = document.getElementById('customerSummary');
+      summary.classList.add('active');
+      summary.textContent = noResult ? `关键词“${keyword}”无匹配结果，可点击重置恢复列表。` : (keyword ? `搜索命中：${keyword}，展示张*、陈*等匹配客户。` : '已恢复全部客户列表。');
+    }
+    function resetCustomerList() {
+      ['customerSearch','aumMin','aumMax'].forEach(id => document.getElementById(id).value = '');
+      ['filterType','filterRisk','filterProduct'].forEach(id => document.getElementById(id).value = '全部');
+      document.getElementById('customerRows').style.display = 'block';
+      document.getElementById('customerEmpty').style.display = 'none';
+      document.getElementById('customerSummary').classList.remove('active');
+    }
+    function setMarketingMode(mode) { marketingContext = mode; document.querySelectorAll('#marketing .segmented button').forEach(btn => btn.classList.toggle('active', btn.textContent === mode)); }
     function openMarketingDetail(name, title) {
+      marketingContext = title.replace('详情','');
+      setMarketingMode(marketingContext);
       document.getElementById('marketingName').textContent = name;
       document.getElementById('marketingDetailTitle').textContent = title;
       document.getElementById('marketingDetailTag').textContent = title.replace('详情','');
@@ -482,25 +538,96 @@
       showPage('marketingDetail');
     }
     function openMarketingList() {
-      document.getElementById('candidateTitle').textContent = document.getElementById('marketingDetailTag').textContent + '适配客户';
+      document.getElementById('candidateTitle').textContent = marketingContext + '适配客户';
       showPage('marketingList');
     }
-    function openConfirm() { document.getElementById('riskCustomer').checked ? showPage('riskBlock') : showPage('sendConfirm'); }
-    function sendCampaign() { showPage('sendResult'); }
+    function openConfirm() {
+      if (marketingContext === '产品' && document.getElementById('riskCustomer').checked) {
+        showPage('riskBlock');
+        return;
+      }
+      const isProduct = marketingContext === '产品';
+      document.getElementById('confirmTitle').textContent = isProduct ? '产品推荐确认' : '活动群发确认';
+      document.getElementById('confirmTag').textContent = isProduct ? '产品链路' : '活动链路';
+      document.getElementById('confirmObject').textContent = isProduct ? '推荐产品：稳盈理财续存产品 · 发送对象：2 人' : '活动名称：养老金融季活动 · 发送对象：2 人';
+      document.getElementById('confirmList').textContent = isProduct ? '张*、陈*；已剔除风险不匹配客户，名单风险适配通过。' : '张*、陈*；活动达标/适配客户名单已确认。';
+      document.getElementById('confirmComplianceTitle').textContent = isProduct ? '产品风险与合规提示' : '活动合规提示';
+      document.getElementById('confirmCompliance').textContent = isProduct ? '产品风险等级 R2，需确认客户风险偏好匹配，不承诺收益，发送后留存产品推荐记录。' : '发送前必须确认活动规则、权益领取口径、客户名单、内容预览与留痕结果。';
+      document.getElementById('confirmText').value = isProduct ? '您好，您持有的稳盈理财即将到期，当前稳盈理财续存产品风险等级 R2，适合稳健型及以上客户。产品不承诺收益，如需了解期限、风险和赎回规则，我可以为您详细说明。' : '您好，您关注的养老金融季活动已达标，请及时领取权益。如需了解适配产品，我可以为您进一步说明。';
+      showPage('sendConfirm');
+    }
+    function sendCampaign() {
+      const isProduct = marketingContext === '产品';
+      document.getElementById('sendResultSuccess').textContent = isProduct ? '产品推荐发送成功' : '活动群发发送成功';
+      document.getElementById('sendResultDesc').textContent = isProduct ? '稳盈理财续存产品推荐已发送给张*、陈*，风险适配与合规话术已留痕。' : '养老金融季活动提醒已发送给张*、陈*，活动触达记录已留痕。';
+      showPage('sendResult');
+    }
     function openAssetSub(title) {
       document.getElementById('assetSubTitle').textContent = title;
-      const amountMap = { '活期明细': '活期余额 ¥86万', '存款明细': '存款余额 ¥220万', '理财明细': '理财持仓金额 ¥180万', '基金明细': '基金持仓金额 ¥96万', 'E 秒贷明细': 'E 秒贷余额 ¥18万', '普惠贷款明细': '普惠贷款余额 ¥43万' };
-      document.getElementById('assetAmount').textContent = amountMap[title];
-      document.getElementById('assetEmpty').textContent = `无${title.replace('明细','')}客户时展示“暂无${title.replace('明细','')}客户”，保留返回按钮。`;
+      const data = assetTemplates[title];
+      document.getElementById('assetAmount').textContent = data[0];
+      document.getElementById('assetAmount2').textContent = data[1];
+      document.getElementById('assetFields1').textContent = data[2];
+      document.getElementById('assetFields2').textContent = data[3];
+      document.getElementById('assetEmpty').style.display = 'none';
+      document.getElementById('assetRows').style.display = 'block';
+      document.getElementById('assetEmpty').textContent = `暂无${title.replace('明细','')}客户，保留返回按钮与筛选条件。`;
+      document.getElementById('assetSummary').textContent = `${title} · 当前排序：${assetSortState}；返回后再次进入保留当前分类与排序。`;
       showPage('assetSub');
     }
+    function setAssetSort(value) {
+      assetSortState = value;
+      document.getElementById('assetSummary').textContent = `${document.getElementById('assetSubTitle').textContent} · 当前排序：${value}；排序/筛选状态已更新。`;
+    }
+    function toggleAssetEmpty() {
+      const empty = document.getElementById('assetEmpty').style.display !== 'block';
+      document.getElementById('assetRows').style.display = empty ? 'none' : 'block';
+      document.getElementById('assetEmpty').style.display = empty ? 'block' : 'none';
+      document.getElementById('assetSummary').textContent = empty ? `${document.getElementById('assetSubTitle').textContent} · 筛选后无匹配客户。` : `${document.getElementById('assetSubTitle').textContent} · 已恢复明细列表，排序保持：${assetSortState}。`;
+    }
+    function setRankScope(scope) {
+      if (scope === '分行') {
+        rankState.scope = scope;
+        updateRank(true, '无分行排行权限');
+        return;
+      }
+      rankState.scope = scope;
+      updateRank(false);
+    }
+    function setRankPeriod(period) { rankState.period = period; updateRank(false); }
+    function setRankDimension(dimension) { rankState.dimension = dimension; updateRank(false); }
+    function changeRankCycle(step) {
+      if (rankState.cycle === 0 && step > 0) return;
+      rankState.cycle += step;
+      updateRank(false);
+    }
+    function updateRank(empty = false, reason = '') {
+      document.querySelectorAll('#ranking .segmented.three button').forEach(btn => btn.classList.toggle('active', btn.textContent === rankState.scope));
+      document.querySelectorAll('#ranking .segmented:not(.three) button').forEach(btn => btn.classList.toggle('active', btn.textContent === rankState.period));
+      document.querySelectorAll('.rank-dimension button').forEach(btn => btn.classList.toggle('active', btn.textContent === rankState.dimension));
+      document.getElementById('rankRows').style.display = empty ? 'none' : 'block';
+      document.getElementById('rankEmpty').style.display = empty ? 'block' : 'none';
+      document.getElementById('rankEmpty').textContent = reason || '当前范围无排行数据，不展示排行明细。';
+      const cycleText = rankState.cycle === 0 ? '本周期' : `前 ${Math.abs(rankState.cycle)} 周期`;
+      document.getElementById('rankSummary').textContent = `${rankState.scope} · ${rankState.period} · ${cycleText} · ${rankState.dimension}${rankState.cycle === 0 ? '；下一周期为未来周期，已置灰。' : '；可返回下一周期。'}`;
+      document.getElementById('rankNext').classList.toggle('disabled', rankState.cycle === 0);
+      document.getElementById('rankMainName').textContent = rankState.dimension;
+      document.getElementById('rankMainValue').textContent = rankState.dimension === '资产规模净增' ? '+¥128万 / 第3' : (rankState.dimension === 'E 秒贷客户数' ? '8 / 42' : (rankState.dimension === '普惠贷款客户数' ? '6 / 31' : '3 / 28'));
+      document.getElementById('rankListValue').textContent = rankState.scope === '支行' ? '城东支行 第 2 名' : '李经理 第 3 名';
+    }
     function openFilter(source) {
+      filterSource = source;
       document.getElementById('filterTitle').textContent = source === 'marketing' ? '适配客户筛选' : '客户列表高级筛选';
       document.getElementById('filterModal').classList.add('active');
     }
     function closeFilter(reset) {
       document.getElementById('aumError').style.display = 'none';
-      if (reset) { document.getElementById('aumMin').value = ''; document.getElementById('aumMax').value = ''; }
+      if (reset) {
+        document.getElementById('aumMin').value = '';
+        document.getElementById('aumMax').value = '';
+        ['filterType','filterRisk','filterProduct'].forEach(id => document.getElementById(id).value = '全部');
+        if (filterSource === 'customer') resetCustomerList();
+      }
       document.getElementById('filterModal').classList.remove('active');
     }
     function applyFilter() {
@@ -510,8 +637,21 @@
       const maxNum = max === '' ? Infinity : Number(max);
       const invalid = minNum < 0 || maxNum < 0 || Number.isNaN(minNum) || Number.isNaN(maxNum) || maxNum < minNum;
       document.getElementById('aumError').style.display = invalid ? 'block' : 'none';
-      if (!invalid) closeFilter(false);
+      if (invalid) return;
+      if (filterSource === 'customer') {
+        const type = document.getElementById('filterType').value;
+        const risk = document.getElementById('filterRisk').value;
+        const product = document.getElementById('filterProduct').value;
+        const noResult = minNum > 900 || type === '大众客户';
+        document.getElementById('customerRows').style.display = noResult ? 'none' : 'block';
+        document.getElementById('customerEmpty').style.display = noResult ? 'block' : 'none';
+        const summary = document.getElementById('customerSummary');
+        summary.classList.add('active');
+        summary.textContent = noResult ? `筛选摘要：${type}/${risk}/${product}/AUM ${min || 0}-${max || '不限'} 万，无匹配客户。` : `筛选摘要：${type}/${risk}/${product}/AUM ${min || 0}-${max || '不限'} 万，命中 2 名客户。`;
+      }
+      closeFilter(false);
     }
+    setDetailTab('产品配置');
   </script>
 </body>
 </html>
