@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>移动端客户经营工具 HTML 交互原型 v1.1</title>
+  <title>移动端客户经营工具 HTML 交互原型 v1.2</title>
   <style>
     :root {
       --primary: #2563eb;
@@ -51,6 +51,7 @@
     }
     .brand { font-size: 18px; font-weight: 700; }
     .top-actions { display: flex; gap: 10px; align-items: center; }
+    button { font-family: inherit; cursor: pointer; }
     .icon-btn, .back-btn {
       min-width: 44px;
       min-height: 44px;
@@ -58,9 +59,11 @@
       border-radius: 14px;
       background: #eff6ff;
       color: var(--primary);
-      font-size: 18px;
-      font-weight: 700;
+      display: inline-grid;
+      place-items: center;
     }
+    .back-btn { font-size: 26px; font-weight: 700; }
+    svg.icon { width: 22px; height: 22px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
     main { padding: 16px 16px 92px; }
     .page { display: none; animation: fadeIn 160ms ease-out; }
     .page.active { display: block; }
@@ -79,7 +82,7 @@
     .num { font-weight: 800; font-variant-numeric: tabular-nums; font-size: 18px; }
     .label { margin-top: 4px; font-size: 11px; color: rgba(255,255,255,.8); }
     .section { margin-top: 18px; }
-    .section-title { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+    .section-title { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; gap: 10px; }
     .section-title h2 { margin: 0; font-size: 16px; }
     .link-btn { border: 0; background: transparent; color: var(--primary); font-weight: 700; min-height: 44px; padding: 0 4px; }
     .card {
@@ -91,7 +94,7 @@
       margin-bottom: 10px;
     }
     .todo-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
-    .todo-card { min-height: 92px; }
+    .todo-card { min-height: 92px; text-align: left; width: 100%; }
     .todo-card strong { display: block; font-size: 20px; margin: 6px 0; }
     .tag { display: inline-flex; align-items: center; border-radius: 999px; padding: 3px 8px; font-size: 11px; font-weight: 700; background: #eff6ff; color: var(--primary); }
     .tag.warn { background: #fef3c7; color: #92400e; }
@@ -108,9 +111,9 @@
       color: var(--text);
       font-weight: 700;
     }
-    .entry span { display: block; color: var(--primary); font-size: 13px; margin-bottom: 8px; }
-    .customer { display: flex; gap: 12px; align-items: flex-start; cursor: pointer; }
-    .avatar { width: 46px; height: 46px; border-radius: 16px; background: linear-gradient(135deg, #dbeafe, #bfdbfe); color: var(--primary-dark); display: grid; place-items: center; font-weight: 800; }
+    .entry .entry-icon { display: grid; place-items: center; color: var(--primary); margin: 0 auto 6px; }
+    .customer { display: flex; gap: 12px; align-items: flex-start; cursor: pointer; text-align: left; width: 100%; }
+    .avatar { width: 46px; height: 46px; border-radius: 16px; background: linear-gradient(135deg, #dbeafe, #bfdbfe); color: var(--primary-dark); display: grid; place-items: center; font-weight: 800; flex: 0 0 auto; }
     .customer-info { flex: 1; }
     .row { display: flex; justify-content: space-between; gap: 10px; align-items: center; }
     .muted { color: var(--muted); font-size: 12px; line-height: 1.6; }
@@ -153,9 +156,12 @@
       color: var(--muted);
       font-weight: 700;
       font-size: 12px;
+      display: grid;
+      place-items: center;
+      align-content: center;
+      gap: 4px;
     }
     .tab.active { color: var(--primary); }
-    .tab span { display: block; font-size: 20px; margin-bottom: 4px; }
     .detail-block h3 { margin: 0 0 10px; font-size: 15px; }
     .info-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
     .info-item { padding: 10px; border-radius: 14px; background: #f8fafc; }
@@ -201,7 +207,7 @@
     <div class="topbar">
       <button class="back-btn" onclick="goBack()">‹</button>
       <div class="brand" id="title">今日工作台</div>
-      <div class="top-actions"><button class="icon-btn">铃</button><button class="icon-btn">我</button></div>
+      <div class="top-actions"><button class="icon-btn" aria-label="消息"><svg class="icon"><use href="#i-bell" /></svg></button><button class="icon-btn" aria-label="个人"><svg class="icon"><use href="#i-user" /></svg></button></div>
     </div>
 
     <main>
@@ -218,30 +224,62 @@
         </div>
 
         <div class="section">
-          <div class="section-title"><h2>当日待办汇总</h2><button class="link-btn" onclick="showPage('customers')">查看名单</button></div>
+          <div class="section-title"><h2>今日待办汇总</h2><button class="link-btn" onclick="openTodoList('全部待办')">查看名单</button></div>
           <div class="todo-grid">
-            <div class="card todo-card"><span class="tag danger">产品到期</span><strong>8</strong><div class="muted">1-7 天内到期</div></div>
-            <div class="card todo-card"><span class="tag warn">待联系</span><strong>6</strong><div class="muted">等待回复超 3 天</div></div>
-            <div class="card todo-card"><span class="tag ok">活动达标</span><strong>5</strong><div class="muted">可领取权益</div></div>
-            <div class="card todo-card"><span class="tag">生日纪念</span><strong>4</strong><div class="muted">7 天内生日</div></div>
+            <button class="card todo-card" onclick="openTodoList('产品到期')"><span class="tag danger">产品到期</span><strong>8</strong><div class="muted">1-7 天内到期，点击查看详情列表</div></button>
+            <button class="card todo-card" onclick="openTodoList('待联系')"><span class="tag warn">待联系</span><strong>6</strong><div class="muted">等待回复超 3 天，点击查看详情列表</div></button>
+            <button class="card todo-card" onclick="openTodoList('活动达标')"><span class="tag ok">活动达标</span><strong>5</strong><div class="muted">可领取权益，点击查看详情列表</div></button>
+            <button class="card todo-card" onclick="openTodoList('生日纪念')"><span class="tag">生日纪念</span><strong>4</strong><div class="muted">7 天内生日，点击查看详情列表</div></button>
           </div>
         </div>
 
         <div class="section">
           <div class="section-title"><h2>高频经营入口</h2></div>
           <div class="entry-grid">
-            <button class="entry" onclick="showPage('customers')"><span>客户</span>客户列表</button>
-            <button class="entry" onclick="showPage('marketing')"><span>营销</span>活动名单</button>
-            <button class="entry" onclick="showPage('customers')"><span>到期</span>产品到期</button>
-            <button class="entry" onclick="showPage('marketing')"><span>群发</span>批量触达</button>
+            <button class="entry" onclick="showPage('customers')"><span class="entry-icon"><svg class="icon"><use href="#i-users" /></svg></span>客户列表</button>
+            <button class="entry" onclick="showPage('marketing')"><span class="entry-icon"><svg class="icon"><use href="#i-megaphone" /></svg></span>活动名单</button>
+            <button class="entry" onclick="openTodoList('产品到期')"><span class="entry-icon"><svg class="icon"><use href="#i-clock" /></svg></span>产品到期</button>
+            <button class="entry" onclick="showPage('marketing')"><span class="entry-icon"><svg class="icon"><use href="#i-send" /></svg></span>批量触达</button>
           </div>
         </div>
 
         <div class="section">
-          <div class="section-title"><h2>优先联系客户 TOP10</h2><button class="link-btn" onclick="showPage('customers')">全部</button></div>
+          <div class="section-title"><h2>优先联系客户 TOP10</h2><button class="link-btn" onclick="openPriorityList()">查看全部</button></div>
           <div class="card customer" onclick="openDetail('张明')"><div class="avatar">张</div><div class="customer-info"><div class="row"><b>张明</b><span class="tag danger">明日到期</span></div><div class="muted">稳盈理财 ¥50万 · 收益率 3.2% · 意向强</div></div></div>
           <div class="card customer" onclick="openDetail('陈华')"><div class="avatar">陈</div><div class="customer-info"><div class="row"><b>陈华</b><span class="tag ok">活动达标</span></div><div class="muted">可领取权益 · 适合养老主题产品沟通</div></div></div>
+          <div class="card customer" onclick="openDetail('王磊')"><div class="avatar">王</div><div class="customer-info"><div class="row"><b>王磊</b><span class="tag danger">大额转出</span></div><div class="muted">近 30 天转出 ¥80万 · 建议沟通资金安排</div></div></div>
+          <div class="card customer" onclick="openDetail('林雨')"><div class="avatar">林</div><div class="customer-info"><div class="row"><b>林雨</b><span class="tag warn">待联系</span></div><div class="muted">等待回复 4 天 · 可补发养老金融季话术</div></div></div>
+          <div class="card customer" onclick="openDetail('赵敏')"><div class="avatar">赵</div><div class="customer-info"><div class="row"><b>赵敏</b><span class="tag">生日纪念</span></div><div class="muted">3 天后生日 · 可发送祝福与权益提醒</div></div></div>
         </div>
+
+        <div class="section">
+          <div class="section-title"><h2>最近动态</h2><button class="link-btn" onclick="showPage('customers')">进入客户</button></div>
+          <div class="card"><div class="row"><b>张明查看稳盈理财续存方案</b><span class="tag danger">10分钟前</span></div><div class="muted">触发产品到期商机，建议今日电话跟进。</div></div>
+          <div class="card"><div class="row"><b>陈华完成养老金融季达标</b><span class="tag ok">35分钟前</span></div><div class="muted">权益券待领取，可加入活动群发名单。</div></div>
+          <div class="card"><div class="row"><b>王磊发生大额转出</b><span class="tag warn">1小时前</span></div><div class="muted">近 30 天累计转出 ¥80万，建议确认资金用途。</div></div>
+        </div>
+      </section>
+
+      <section class="page" id="todoList">
+        <div class="section-title"><h2 id="todoTitle">产品到期</h2><span class="tag">详情列表</span></div>
+        <div class="card customer" onclick="openDetail('张明')"><div class="avatar">张</div><div class="customer-info"><div class="row"><b>张明</b><span class="tag danger">明日到期</span></div><div class="muted">稳盈理财 ¥50万 · 收益率 3.2% · 建议续存沟通</div></div></div>
+        <div class="card customer" onclick="openDetail('陈华')"><div class="avatar">陈</div><div class="customer-info"><div class="row"><b>陈华</b><span class="tag ok">权益待领</span></div><div class="muted">养老金融季达标 · 可领取权益券 · 建议企微触达</div></div></div>
+        <div class="card customer" onclick="openDetail('林雨')"><div class="avatar">林</div><div class="customer-info"><div class="row"><b>林雨</b><span class="tag warn">待联系</span></div><div class="muted">等待回复 4 天 · 上次联系：养老理财咨询</div></div></div>
+        <div class="card customer" onclick="openDetail('赵敏')"><div class="avatar">赵</div><div class="customer-info"><div class="row"><b>赵敏</b><span class="tag">生日纪念</span></div><div class="muted">3 天后生日 · 可发送祝福模板与权益提醒</div></div></div>
+      </section>
+
+      <section class="page" id="priorityList">
+        <div class="section-title"><h2>优先联系客户 TOP10</h2><span class="tag">独立详情列表</span></div>
+        <div class="card customer" onclick="openDetail('张明')"><div class="avatar">张</div><div class="customer-info"><div class="row"><b>1. 张明</b><span class="tag danger">明日到期</span></div><div class="muted">时效紧迫性高 · 意向强 · AUM ¥720万</div></div></div>
+        <div class="card customer" onclick="openDetail('陈华')"><div class="avatar">陈</div><div class="customer-info"><div class="row"><b>2. 陈华</b><span class="tag ok">活动达标</span></div><div class="muted">权益待领 · 适合养老主题产品沟通</div></div></div>
+        <div class="card customer" onclick="openDetail('王磊')"><div class="avatar">王</div><div class="customer-info"><div class="row"><b>3. 王磊</b><span class="tag danger">大额转出</span></div><div class="muted">近 30 天转出 ¥80万 · 建议确认资金安排</div></div></div>
+        <div class="card customer" onclick="openDetail('林雨')"><div class="avatar">林</div><div class="customer-info"><div class="row"><b>4. 林雨</b><span class="tag warn">待联系</span></div><div class="muted">等待回复 4 天 · 可补发活动话术</div></div></div>
+        <div class="card customer" onclick="openDetail('赵敏')"><div class="avatar">赵</div><div class="customer-info"><div class="row"><b>5. 赵敏</b><span class="tag">生日纪念</span></div><div class="muted">3 天后生日 · 可用祝福模板维护</div></div></div>
+        <div class="card customer" onclick="openDetail('刘洋')"><div class="avatar">刘</div><div class="customer-info"><div class="row"><b>6. 刘洋</b><span class="tag danger">产品到期</span></div><div class="muted">稳健理财 5 天后到期 · AUM ¥410万</div></div></div>
+        <div class="card customer" onclick="openDetail('周宁')"><div class="avatar">周</div><div class="customer-info"><div class="row"><b>7. 周宁</b><span class="tag warn">浏览未交易</span></div><div class="muted">多次浏览基金组合 · 建议跟进风险偏好</div></div></div>
+        <div class="card customer" onclick="openDetail('黄颖')"><div class="avatar">黄</div><div class="customer-info"><div class="row"><b>8. 黄颖</b><span class="tag ok">活动达标</span></div><div class="muted">权益待领取 · 可同步产品配置建议</div></div></div>
+        <div class="card customer" onclick="openDetail('许强')"><div class="avatar">许</div><div class="customer-info"><div class="row"><b>9. 许强</b><span class="tag warn">久未联系</span></div><div class="muted">距离上次联系 31 天 · 建议维护关系</div></div></div>
+        <div class="card customer" onclick="openDetail('孙洁')"><div class="avatar">孙</div><div class="customer-info"><div class="row"><b>10. 孙洁</b><span class="tag">生日纪念</span></div><div class="muted">6 天后生日 · 可发送祝福模板</div></div></div>
       </section>
 
       <section class="page" id="customers">
@@ -281,16 +319,35 @@
       </section>
 
       <section class="page" id="mine">
-        <div class="card"><b>我的业绩</b><div class="muted">本月达成率 94%，支行排名 3/28。</div></div>
+        <button class="card customer" onclick="showPage('ranking')"><div class="avatar"><svg class="icon"><use href="#i-trophy" /></svg></div><div class="customer-info"><div class="row"><b>业绩展示排行榜</b><span class="tag">功能入口</span></div><div class="muted">查看个人、支行、分行排行与达成趋势。</div></div></button>
+        <button class="card customer" onclick="showPage('assetDetail')"><div class="avatar"><svg class="icon"><use href="#i-wallet" /></svg></div><div class="customer-info"><div class="row"><b>资产明细</b><span class="tag ok">可下钻</span></div><div class="muted">查看存款、理财、基金、贷款与余额结构。</div></div></button>
         <div class="card"><b>设置与帮助</b><div class="muted">消息提醒、客户分组、使用帮助。</div></div>
+      </section>
+
+      <section class="page" id="ranking">
+        <div class="section-title"><h2>业绩展示排行榜</h2><span class="tag">二级页面</span></div>
+        <div class="card"><div class="row"><b>个人排名</b><span class="amount">3 / 28</span></div><div class="muted">本月达成率 94%，较上周提升 6%。</div></div>
+        <div class="card"><div class="row"><b>支行排名</b><span class="amount">8 / 42</span></div><div class="muted">AUM 净增 ¥856万，客户提升 12 户。</div></div>
+        <div class="card"><div class="row"><b>分行排名</b><span class="amount">26 / 186</span></div><div class="muted">负债类、资产类、客户类指标综合排名。</div></div>
+      </section>
+
+      <section class="page" id="assetDetail">
+        <div class="section-title"><h2>资产明细</h2><span class="tag">二级页面</span></div>
+        <div class="card detail-block"><h3>资产结构</h3><div class="asset-bar"><span></span><span></span><span></span><span></span></div><div class="muted">按管户客户资产余额汇总展示。</div></div>
+        <div class="info-grid">
+          <div class="info-item"><span class="muted">存款余额</span><b>¥4,280万</b></div>
+          <div class="info-item"><span class="muted">理财余额</span><b>¥3,160万</b></div>
+          <div class="info-item"><span class="muted">E秒贷余额</span><b>¥520万</b></div>
+          <div class="info-item"><span class="muted">普惠贷款余额</span><b>¥780万</b></div>
+        </div>
       </section>
     </main>
 
     <nav class="tabbar">
-      <button class="tab active" data-tab="home" onclick="showPage('home')"><span>⌂</span>首页</button>
-      <button class="tab" data-tab="customers" onclick="showPage('customers')"><span>◎</span>客户</button>
-      <button class="tab" data-tab="marketing" onclick="showPage('marketing')"><span>◇</span>营销</button>
-      <button class="tab" data-tab="mine" onclick="showPage('mine')"><span>○</span>我的</button>
+      <button class="tab active" data-tab="home" onclick="showPage('home')"><svg class="icon"><use href="#i-home" /></svg>首页</button>
+      <button class="tab" data-tab="customers" onclick="showPage('customers')"><svg class="icon"><use href="#i-users" /></svg>客户</button>
+      <button class="tab" data-tab="marketing" onclick="showPage('marketing')"><svg class="icon"><use href="#i-megaphone" /></svg>营销</button>
+      <button class="tab" data-tab="mine" onclick="showPage('mine')"><svg class="icon"><use href="#i-user" /></svg>我的</button>
     </nav>
 
     <div class="modal-mask" id="filterModal">
@@ -314,17 +371,30 @@
     </div>
   </div>
 
+  <svg width="0" height="0" style="position:absolute;overflow:hidden" aria-hidden="true">
+    <symbol id="i-home" viewBox="0 0 24 24"><path d="m3 10 9-7 9 7"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/></symbol>
+    <symbol id="i-users" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></symbol>
+    <symbol id="i-megaphone" viewBox="0 0 24 24"><path d="m3 11 18-5v12L3 13z"/><path d="M11 14v5a2 2 0 0 1-4 0v-6"/></symbol>
+    <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></symbol>
+    <symbol id="i-bell" viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></symbol>
+    <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></symbol>
+    <symbol id="i-send" viewBox="0 0 24 24"><path d="m22 2-7 20-4-9-9-4z"/><path d="M22 2 11 13"/></symbol>
+    <symbol id="i-trophy" viewBox="0 0 24 24"><path d="M8 21h8"/><path d="M12 17v4"/><path d="M7 4h10v5a5 5 0 0 1-10 0z"/><path d="M5 5H3a4 4 0 0 0 4 4"/><path d="M19 5h2a4 4 0 0 1-4 4"/></symbol>
+    <symbol id="i-wallet" viewBox="0 0 24 24"><path d="M3 7h18v14H3z"/><path d="M3 7V5a2 2 0 0 1 2-2h13"/><path d="M16 14h3"/></symbol>
+  </svg>
+
   <script>
     const titles = {
-      home: '今日工作台', customers: '客户列表', detail: '客户详情', marketing: '营销工具', marketingList: '客户名单', mine: '我的中心'
+      home: '今日工作台', todoList: '待办详情列表', priorityList: '优先联系列表', customers: '客户列表', detail: '客户详情', marketing: '营销工具', marketingList: '客户名单', mine: '我的中心', ranking: '业绩排行榜', assetDetail: '资产明细'
     };
+    const tabMap = { home: 'home', customers: 'customers', marketing: 'marketing', mine: 'mine' };
     const historyStack = ['home'];
 
     function showPage(id, push = true) {
       document.querySelectorAll('.page').forEach(page => page.classList.remove('active'));
       document.getElementById(id).classList.add('active');
       document.getElementById('title').textContent = titles[id];
-      document.querySelectorAll('.tab').forEach(tab => tab.classList.toggle('active', tab.dataset.tab === id));
+      document.querySelectorAll('.tab').forEach(tab => tab.classList.toggle('active', tab.dataset.tab === (tabMap[id] || id)));
       if (push && historyStack[historyStack.length - 1] !== id) historyStack.push(id);
     }
 
@@ -332,6 +402,13 @@
       if (historyStack.length > 1) historyStack.pop();
       showPage(historyStack[historyStack.length - 1], false);
     }
+
+    function openTodoList(type) {
+      document.getElementById('todoTitle').textContent = type + '详情列表';
+      showPage('todoList');
+    }
+
+    function openPriorityList() { showPage('priorityList'); }
 
     function openDetail(name) {
       document.getElementById('detailName').textContent = name;
