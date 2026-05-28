@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>移动端客户经营工具 PRD v1.2 可交互原型</title>
+  <style>
+    :root {
+      --primary: #2563EB;
+      --primary-dark: #1D4ED8;
+      --secondary: #3B82F6;
+      --success: #10B981;
+      --warning: #F59E0B;
+      --error: #EF4444;
+      --bg: #F8FAFC;
+      --surface: #FFFFFF;
+      --text: #0F172A;
+      --muted: #64748B;
+      --border: #E2E8F0;
+      --purple: #8B5CF6;
+      --safe: env(safe-area-inset-bottom, 0px);
+      font-family: "IBM Plex Sans", "Noto Sans SC", "PingFang SC", -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: linear-gradient(135deg, #E0E7FF 0%, #F8FAFC 45%, #EFF6FF 100%);
+      color: var(--text);
+      display: flex;
+      justify-content: center;
+      padding: 24px 12px;
+    }
+    .shell {
+      width: 390px;
+      max-width: 100%;
+      height: 844px;
+      border-radius: 36px;
+      background: var(--bg);
+      box-shadow: 0 28px 80px rgba(15, 23, 42, .22);
+      overflow: hidden;
+      position: relative;
+      border: 8px solid #0F172A;
+    }
+    .screen {
+      display: none;
+      height: 100%;
+      overflow: hidden;
+      background: var(--bg);
+      animation: enter .18s ease-out;
+    }
+    .screen.active { display: flex; flex-direction: column; }
+    @keyframes enter { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    .topbar, .subbar {
+      height: 60px;
+      min-height: 60px;
+      background: rgba(255,255,255,.92);
+      backdrop-filter: blur(14px);
+      display: flex;
+      align-items: center;
+      padding: 0 16px;
+      border-bottom: 1px solid rgba(226,232,240,.8);
+      z-index: 5;
+    }
+    .brand { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 18px; }
+    .logo { width: 32px; height: 32px; border-radius: 10px; background: linear-gradient(135deg, var(--primary), var(--secondary)); color: #fff; display: grid; place-items: center; font-weight: 800; }
+    .spacer { flex: 1; }
+    .icon-btn, .back-btn {
+      min-width: 44px; min-height: 44px; border: 0; background: transparent; border-radius: 14px;
+      color: var(--text); font-size: 20px; display: inline-flex; align-items: center; justify-content: center;
+    }
+    .back-btn { margin-left: -10px; font-size: 24px; }
+    .sub-title { font-size: 18px; font-weight: 700; }
+    .content { flex: 1; overflow-y: auto; padding: 14px 14px 96px; }
+    .no-tab .content { padding-bottom: 86px; }
+    .section-title { font-size: 16px; font-weight: 700; margin: 18px 2px 10px; display:flex; justify-content:space-between; align-items:center; }
+    .muted { color: var(--muted); }
+    .small { font-size: 12px; }
+    .card { background: var(--surface); border-radius: 18px; padding: 14px; box-shadow: 0 8px 24px rgba(15,23,42,.06); border: 1px solid rgba(226,232,240,.72); margin-bottom: 12px; }
+    .hero { background: linear-gradient(135deg, var(--primary), var(--secondary)); color: #fff; border: 0; }
+    .grid { display: grid; gap: 10px; }
+    .grid-2 { grid-template-columns: repeat(2, 1fr); }
+    .grid-3 { grid-template-columns: repeat(3, 1fr); }
+    .grid-4 { grid-template-columns: repeat(4, 1fr); }
+    .metric { background: rgba(255,255,255,.12); border-radius: 14px; padding: 10px; }
+    .metric .num, .num { font-variant-numeric: tabular-nums; font-weight: 800; font-size: 22px; line-height: 1.1; }
+    .label { font-size: 12px; color: var(--muted); }
+    .hero .label { color: rgba(255,255,255,.78); }
+    .pill { border-radius: 999px; padding: 5px 9px; font-size: 11px; font-weight: 700; background: #EFF6FF; color: var(--primary); display: inline-flex; align-items: center; gap: 4px; }
+    .pill.success { background:#DCFCE7; color:#047857; }
+    .pill.warn { background:#FEF3C7; color:#B45309; }
+    .pill.error { background:#FEE2E2; color:#B91C1C; }
+    .pill.gray { background:#F1F5F9; color:#475569; }
+    .row { display: flex; gap: 10px; align-items: center; }
+    .between { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+    .btn {
+      min-height: 44px; border: 0; border-radius: 14px; padding: 0 14px; font-weight: 700;
+      background: linear-gradient(135deg, var(--primary), var(--secondary)); color: #fff;
+    }
+    .btn.secondary { background: #EFF6FF; color: var(--primary); }
+    .btn.ghost { background: #F8FAFC; color: var(--text); border: 1px solid var(--border); }
+    .btn.danger { background: #FEE2E2; color: #B91C1C; }
+    .btn:active, .tab:active, .list-item:active, .card.clickable:active { transform: scale(.98); }
+    .tabbar {
+      position: absolute; left: 0; right: 0; bottom: 0; height: 76px; padding-bottom: var(--safe);
+      background: rgba(255,255,255,.96); border-top: 1px solid var(--border); display: grid; grid-template-columns: repeat(4,1fr); z-index: 20;
+    }
+    .tab { border: 0; background: transparent; min-height: 64px; color: var(--muted); font-weight: 600; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3px; }
+    .tab.active { color: var(--primary); }
+    .tab .ico { width: 24px; height: 24px; border-radius: 8px; display:grid; place-items:center; font-size: 16px; }
+    .tab.active .ico { background: #DBEAFE; }
+    .chips { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; }
+    .chip { min-height: 36px; border: 1px solid var(--border); background: #fff; border-radius: 999px; padding: 0 12px; color: var(--muted); font-weight: 700; white-space: nowrap; }
+    .chip.active { color: var(--primary); border-color: #BFDBFE; background: #EFF6FF; }
+    .list-item { background: #fff; border-radius: 16px; padding: 12px; border: 1px solid rgba(226,232,240,.8); margin-bottom: 10px; }
+    .avatar { width: 44px; height: 44px; border-radius: 16px; background: #DBEAFE; color: var(--primary); font-weight: 800; display:grid; place-items:center; }
+    .bar { height: 8px; border-radius: 999px; background: #E2E8F0; overflow: hidden; }
+    .bar > i { display:block; height:100%; border-radius:999px; background: linear-gradient(90deg,var(--primary),var(--success)); }
+    .nav-tabs { display:flex; gap:8px; overflow-x:auto; margin-bottom: 12px; position: sticky; top: 0; z-index: 2; background: var(--bg); padding: 2px 0 8px; }
+    .detail-action {
+      position:absolute; left:0; right:0; bottom:0; background:#fff; border-top:1px solid var(--border); padding:10px 12px calc(10px + var(--safe)); display:grid; grid-template-columns:repeat(4,1fr); gap:8px; z-index:25;
+    }
+    .task-action { grid-template-columns: 1fr 1fr; }
+    .detail-action .btn { padding:0 8px; font-size:12px; }
+    .field { display:flex; justify-content:space-between; gap: 12px; padding: 9px 0; border-bottom: 1px dashed #E2E8F0; font-size: 13px; }
+    .field:last-child { border-bottom:0; }
+    .money { font-variant-numeric: tabular-nums; font-weight: 800; }
+    .subtle { background:#F8FAFC; border-radius:14px; padding:10px; }
+    .divider { height:1px; background: var(--border); margin:10px 0; }
+    .search { width:100%; height:42px; border:1px solid var(--border); border-radius:14px; padding:0 12px; font-size:14px; background:#fff; }
+    .check { width:22px; height:22px; border-radius:7px; border:2px solid #CBD5E1; display:grid; place-items:center; color:#fff; font-size:13px; }
+    .selected .check { background: var(--primary); border-color: var(--primary); }
+    .rank-row { display:grid; grid-template-columns: 34px 1fr auto; gap:10px; align-items:center; padding:10px 0; border-bottom:1px solid #F1F5F9; }
+    .rank-row.me { background:#EFF6FF; margin: 0 -8px; padding:10px 8px; border-radius:12px; border-bottom:0; }
+    .hide { display:none !important; }
+  </style>
+</head>
+<body>
+  <div class="shell" id="app">
+    <section class="screen active" id="home">
+      <header class="topbar"><div class="brand"><div class="logo">M</div><span>展业助手</span></div><div class="spacer"></div><button class="icon-btn">铃</button><div class="avatar" style="width:34px;height:34px;border-radius:12px">李</div></header>
+      <main class="content">
+        <div class="card hero">
+          <div class="between"><div><div class="label">上午好，李经理</div><div style="font-size:20px;font-weight:800;margin-top:4px">今日优先处理 12 项</div></div><span class="pill" style="background:rgba(255,255,255,.18);color:#fff">企微小程序</span></div>
+          <div class="grid grid-4" style="margin-top:14px">
+            <div class="metric"><div class="num">856</div><div class="label">AUM/万</div></div>
+            <div class="metric"><div class="num">47</div><div class="label">管户客户</div></div>
+            <div class="metric"><div class="num">8</div><div class="label">到期</div></div>
+            <div class="metric"><div class="num">5</div><div class="label">活动达标</div></div>
+          </div>
+        </div>
+        <div class="section-title">今日待办汇总 <span class="small muted">按时效优先</span></div>
+        <div class="grid grid-2">
+          <div class="card"><span class="pill warn">到期提醒</span><div class="num" style="margin-top:8px">8</div><div class="label">7天内产品到期</div></div>
+          <div class="card"><span class="pill success">活动达标</span><div class="num" style="margin-top:8px">5</div><div class="label">权益待领取</div></div>
+          <div class="card"><span class="pill error">大额转出</span><div class="num" style="margin-top:8px">2</div><div class="label">需今日跟进</div></div>
+          <div class="card"><span class="pill">生日纪念</span><div class="num" style="margin-top:8px">3</div><div class="label">7天内触达</div></div>
+        </div>
+        <div class="section-title">优先联系客户 TOP10 <button class="btn secondary" onclick="go('customerList')">查看全部</button></div>
+        <div class="list-item" onclick="go('customerDetail')"><div class="row"><div class="avatar">张</div><div style="flex:1"><div class="between"><b>张**</b><span class="pill error">明日到期</span></div><div class="label">138****6521 · 稳健型 · AUM 326万</div><div class="small muted">稳盈理财 50万明日到期，建议今日邀约续投</div></div></div></div>
+        <div class="list-item"><div class="row"><div class="avatar">王</div><div style="flex:1"><div class="between"><b>王**</b><span class="pill success">活动达标</span></div><div class="label">财富客户 · 可领取权益</div><div class="small muted">信用卡绑卡活动已达标，待提醒领取</div></div></div></div>
+        <div class="section-title">快捷入口</div>
+        <div class="grid grid-4">
+          <button class="btn ghost" onclick="go('customerList')">客户</button><button class="btn ghost" onclick="go('marketing')">活动</button><button class="btn ghost" onclick="go('marketing','product')">产品</button><button class="btn ghost" onclick="go('mine')">排行</button>
+        </div>
+      </main>
+      <nav class="tabbar"><button class="tab active" onclick="go('home')"><span class="ico">首</span>首页</button><button class="tab" onclick="go('customerList')"><span class="ico">客</span>客户</button><button class="tab" onclick="go('marketing')"><span class="ico">营</span>营销</button><button class="tab" onclick="go('mine')"><span class="ico">我</span>我的</button></nav>
+    </section>
+
+    <section class="screen" id="customerList">
+      <header class="topbar"><div class="brand"><div class="logo">客</div><span>客户</span></div><div class="spacer"></div><button class="icon-btn">筛</button></header>
+      <main class="content">
+        <input class="search" placeholder="搜索客户姓名 / 手机号 / 客户号" />
+        <div class="chips" style="margin-top:12px"><button class="chip active">全部</button><button class="chip">7天内到期</button><button class="chip">活动达标</button><button class="chip">大额转出</button><button class="chip">稳健型</button></div>
+        <div class="list-item" onclick="go('customerDetail')"><div class="row"><div class="avatar">张</div><div style="flex:1"><div class="between"><b>张**</b><span class="pill error">紧急</span></div><div class="label">私行客户 · 138****6521</div><div class="small muted">存款 120万 · 理财 50万 · 基金 36万 · E秒贷 20万</div></div></div></div>
+        <div class="list-item"><div class="row"><div class="avatar">陈</div><div style="flex:1"><div class="between"><b>陈**</b><span class="pill warn">待联系</span></div><div class="label">财富客户 · 159****9032</div><div class="small muted">结构性存款 80万 5天后到期</div></div></div></div>
+        <div class="list-item"><div class="row"><div class="avatar">林</div><div style="flex:1"><div class="between"><b>林**</b><span class="pill success">强意向</span></div><div class="label">创富客户 · 已浏览基金组合3次</div><div class="small muted">建议推送稳健基金组合话术</div></div></div></div>
+      </main>
+      <nav class="tabbar"><button class="tab" onclick="go('home')"><span class="ico">首</span>首页</button><button class="tab active" onclick="go('customerList')"><span class="ico">客</span>客户</button><button class="tab" onclick="go('marketing')"><span class="ico">营</span>营销</button><button class="tab" onclick="go('mine')"><span class="ico">我</span>我的</button></nav>
+    </section>
+
+    <section class="screen no-tab" id="customerDetail">
+      <header class="subbar"><button class="back-btn" onclick="back()">‹</button><div class="sub-title">客户详情</div><div class="spacer"></div><span class="pill warn">重点客户</span></header>
+      <main class="content">
+        <div class="card hero">
+          <div class="between"><div><div style="font-size:22px;font-weight:800">张**</div><div class="label">私行客户 · 女 · 42岁 · 生日 08-16</div></div><span class="pill" style="background:rgba(255,255,255,.18);color:#fff">本年新客</span></div>
+          <div class="grid grid-3" style="margin-top:14px"><div class="metric"><div class="num">326</div><div class="label">AUM/万</div></div><div class="metric"><div class="num">R2</div><div class="label">风险评级</div></div><div class="metric"><div class="num">138****6521</div><div class="label">手机号</div></div></div>
+        </div>
+        <div class="card"><div class="section-title" style="margin:0 0 10px">价值分析</div><div class="grid grid-2"><div class="subtle"><div class="label">三年峰值AUM</div><div class="money">¥418万</div></div><div class="subtle"><div class="label">较峰值差额</div><div class="money" style="color:var(--error)">-¥92万</div></div><div class="subtle"><div class="label">最近产品到期</div><div class="money">2026-05-29</div></div><div class="subtle"><div class="label">合作收单</div><div class="money">已合作</div></div></div></div>
+        <div class="card"><div class="section-title" style="margin:0 0 10px">资产总览</div><div class="grid grid-3"><div><div class="label">存款</div><b>¥120万</b></div><div><div class="label">理财</div><b>¥50万</b></div><div><div class="label">基金</div><b>¥36万</b></div><div><div class="label">总贷款</div><b>¥86万</b></div><div><div class="label">E秒贷余额</div><b>¥20万</b></div><div><div class="label">零售贷款</div><b>¥66万</b></div></div></div>
+        <div class="nav-tabs"><button class="chip active" onclick="switchDetailTab('products')">产品配置</button><button class="chip" onclick="switchDetailTab('opps')">商机信息</button><button class="chip" onclick="switchDetailTab('acts')">营销活动</button><button class="chip" onclick="switchDetailTab('channels')">渠道签约</button><button class="chip" onclick="switchDetailTab('basic')">基本信息</button></div>
+        <div id="detail-products" class="detail-panel">
+          <div class="list-item"><div class="between"><b>产品到期提醒</b><span class="pill error">剩余1天</span></div><div class="field"><span>稳盈理财C款</span><b>¥50万</b></div><div class="field"><span>到期日</span><b>2026-05-29</b></div><div class="field"><span>年化收益</span><b>3.15%</b></div><button class="btn" style="width:100%;margin-top:10px">生成续投话术</button></div>
+          <div class="list-item"><div class="between"><b>定期存款</b><span class="pill warn">5天后到期</span></div><div class="label">三年期大额存单 · ¥70万 · 2026-06-02</div></div>
+          <div class="list-item"><div class="between"><b>结构性存款</b><span class="pill gray">持有中</span></div><div class="label">挂钩汇率结构性存款 · ¥50万</div></div>
+          <div class="list-item"><div class="between"><b>E 秒贷</b><span class="pill success">可提升额度</span></div><div class="label">授信 50万 · 已用 20万 · 可提升至 80万</div></div>
+        </div>
+        <div id="detail-opps" class="detail-panel hide">
+          <div class="list-item"><div class="between"><b>理财产品到期转化</b><span class="pill error">高优先级</span></div><div class="label">稳盈理财即将到期，可推荐同风险等级产品</div><button class="btn secondary" style="margin-top:10px;width:100%">AI 话术</button></div>
+          <div class="list-item"><div class="between"><b>基金组合优化建议</b><span class="pill warn">中优先级</span></div><div class="label">基金波动较高，建议调仓至稳健组合</div></div>
+          <div class="list-item"><div class="between"><b>E 秒贷额度提升</b><span class="pill success">可转化</span></div><div class="label">经营流水稳定，授信额度可提升</div></div>
+        </div>
+        <div id="detail-acts" class="detail-panel hide"><div class="list-item"><div class="between"><b>财富客户积分礼遇</b><span class="pill success">已达标</span></div><div class="label">客户已达标未领取权益，建议提醒领取</div></div><div class="list-item"><div class="between"><b>绑卡支付有礼</b><span class="pill warn">未报名</span></div><div class="label">适配客户，可发送邀约</div></div></div>
+        <div id="detail-channels" class="detail-panel hide"><div class="card"><div class="grid grid-2"><div class="field"><span>手机银行</span><b>已签约</b></div><div class="field"><span>微信动账通知</span><b>未签约</b></div><div class="field"><span>微信支付绑卡</span><b>已绑卡</b></div><div class="field"><span>支付宝支付绑卡</span><b>未绑卡</b></div><div class="field"><span>信用卡自动还款</span><b>已开通</b></div><div class="field"><span>云闪付绑卡</span><b>未绑卡</b></div></div></div></div>
+        <div id="detail-basic" class="detail-panel hide"><div class="card"><div class="field"><span>姓名</span><b>张**</b></div><div class="field"><span>证件类型</span><b>身份证</b></div><div class="field"><span>证件号码</span><b>3502*******4821</b></div><div class="field"><span>归属客户经理</span><b>李经理</b></div><div class="field"><span>最近联系</span><b>2026-05-26</b></div><div class="field"><span>客户来源</span><b>厅堂转介</b></div></div></div>
+      </main>
+      <div class="detail-action"><button class="btn secondary">拨打电话</button><button class="btn secondary">AI简报</button><button class="btn secondary">添加邀约</button><button class="btn secondary">客户动态</button></div>
+    </section>
+
+    <section class="screen" id="marketing">
+      <header class="topbar"><div class="brand"><div class="logo">营</div><span>营销</span></div><div class="spacer"></div><button class="icon-btn">搜</button></header>
+      <main class="content">
+        <div class="chips"><button class="chip active" id="m-act" onclick="switchMarketing('activity')">活动模块</button><button class="chip" id="m-prod" onclick="switchMarketing('product')">产品模块</button></div>
+        <div id="activity-list">
+          <div class="section-title">当前开展活动 <span class="small muted">活动 → 客户 → 群发</span></div>
+          <div class="list-item" onclick="go('activityDetail')"><div class="between"><b>财富客户积分礼遇</b><span class="pill success">进行中</span></div><div class="label">2026-05-01 至 2026-06-30 · 达标领权益</div><div class="between" style="margin-top:10px"><span class="pill">适配 128 人</span><span class="small muted">已发送 32 人</span></div></div>
+          <div class="list-item" onclick="go('activityDetail')"><div class="between"><b>支付绑卡有礼</b><span class="pill warn">待推广</span></div><div class="label">微信/支付宝绑卡支付满额享权益</div><div class="between" style="margin-top:10px"><span class="pill">适配 84 人</span><span class="small muted">未群发</span></div></div>
+        </div>
+        <div id="product-list" class="hide">
+          <div class="section-title">当前在售产品 <span class="small muted">产品 → 客户 → 群发</span></div>
+          <div class="list-item" onclick="go('productDetail')"><div class="between"><b>稳盈理财 90 天</b><span class="pill success">在售</span></div><div class="label">R2 稳健型 · 起购 1 万 · 期限 90 天</div><div class="between" style="margin-top:10px"><span class="pill">适配 63 人</span><span class="small muted">到期客户优先</span></div></div>
+          <div class="list-item" onclick="go('productDetail')"><div class="between"><b>E 秒贷经营贷</b><span class="pill">额度提升</span></div><div class="label">最高 100 万 · 随借随还 · 白名单客户</div><div class="between" style="margin-top:10px"><span class="pill">适配 41 人</span><span class="small muted">普惠经营客群</span></div></div>
+        </div>
+      </main>
+      <nav class="tabbar"><button class="tab" onclick="go('home')"><span class="ico">首</span>首页</button><button class="tab" onclick="go('customerList')"><span class="ico">客</span>客户</button><button class="tab active" onclick="go('marketing')"><span class="ico">营</span>营销</button><button class="tab" onclick="go('mine')"><span class="ico">我</span>我的</button></nav>
+    </section>
+
+    <section class="screen no-tab" id="activityDetail">
+      <header class="subbar"><button class="back-btn" onclick="back()">‹</button><div class="sub-title">活动详情</div><div class="spacer"></div><span class="pill success">进行中</span></header>
+      <main class="content"><div class="card hero"><div class="label">营销活动</div><h2 style="margin:6px 0">财富客户积分礼遇</h2><div>达标客户可领取积分与专属权益，优先触达已达标未领取客户。</div></div><div class="card"><div class="field"><span>活动时间</span><b>05-01 ~ 06-30</b></div><div class="field"><span>参与条件</span><b>财富客户 / AUM ≥ 50万</b></div><div class="field"><span>达标规则</span><b>月日均资产 +20万</b></div><div class="field"><span>权益规则</span><b>积分 8,888 + 权益券</b></div></div><div class="card"><b>合规提示</b><p class="small muted">群发内容需明确活动规则，不得承诺收益或诱导不适配客户参与。</p></div></main>
+      <div class="detail-action task-action"><button class="btn ghost" onclick="back()">返回列表</button><button class="btn" onclick="go('activityCustomers')">查看适配客户</button></div>
+    </section>
+
+    <section class="screen no-tab" id="productDetail">
+      <header class="subbar"><button class="back-btn" onclick="back()">‹</button><div class="sub-title">产品详情</div><div class="spacer"></div><span class="pill success">在售</span></header>
+      <main class="content"><div class="card hero"><div class="label">在售产品</div><h2 style="margin:6px 0">稳盈理财 90 天</h2><div>R2 稳健型，适配稳健及以上风险承受能力客户。</div></div><div class="card"><div class="field"><span>风险等级</span><b>R2</b></div><div class="field"><span>起购金额</span><b>¥10,000</b></div><div class="field"><span>期限/开放期</span><b>90 天</b></div><div class="field"><span>展示规则</span><b>业绩比较基准区间</b></div><div class="field"><span>适配条件</span><b>到期资金 / 稳健型 / 无同类集中</b></div></div><div class="card"><b>风险匹配提示</b><p class="small muted">客户风险偏好低于产品风险等级时，群发确认页将阻断发送。</p></div></main>
+      <div class="detail-action task-action"><button class="btn ghost" onclick="back()">返回列表</button><button class="btn" onclick="go('productCustomers')">查看适配客户</button></div>
+    </section>
+
+    <section class="screen no-tab" id="activityCustomers">
+      <header class="subbar"><button class="back-btn" onclick="back()">‹</button><div class="sub-title">活动适配客户</div><div class="spacer"></div><span class="pill">128人</span></header>
+      <main class="content"><input class="search" placeholder="搜索适配客户" /><div class="chips" style="margin-top:12px"><button class="chip active">已达标未领取</button><button class="chip">财富客户</button><button class="chip">AUM 50万+</button><button class="chip">未报名</button></div><div class="list-item selected" onclick="toggleSelect(this)"><div class="row"><div class="check">✓</div><div><b>王**</b><div class="label">财富客户 · 已达标未领取 · AUM 168万</div></div></div></div><div class="list-item selected" onclick="toggleSelect(this)"><div class="row"><div class="check">✓</div><div><b>张**</b><div class="label">私行客户 · 未领取权益 · 138****6521</div></div></div></div><div class="list-item" onclick="toggleSelect(this)"><div class="row"><div class="check"></div><div><b>陈**</b><div class="label">财富客户 · 未报名 · 稳健型</div></div></div></div></main>
+      <div class="detail-action task-action"><button class="btn ghost">筛选排序</button><button class="btn" onclick="go('sendConfirm','activity')">下一步：群发确认</button></div>
+    </section>
+
+    <section class="screen no-tab" id="productCustomers">
+      <header class="subbar"><button class="back-btn" onclick="back()">‹</button><div class="sub-title">产品适配客户</div><div class="spacer"></div><span class="pill">63人</span></header>
+      <main class="content"><input class="search" placeholder="搜索适配客户" /><div class="chips" style="margin-top:12px"><button class="chip active">到期客户</button><button class="chip">稳健型</button><button class="chip">无同类持仓</button><button class="chip">50万以上</button></div><div class="list-item selected" onclick="toggleSelect(this)"><div class="row"><div class="check">✓</div><div><b>张**</b><div class="label">理财50万明日到期 · R2匹配 · 无同类集中</div></div></div></div><div class="list-item selected" onclick="toggleSelect(this)"><div class="row"><div class="check">✓</div><div><b>林**</b><div class="label">基金赎回资金待承接 · R3可购买R2</div></div></div></div><div class="list-item"><div class="row"><div class="check"></div><div><b>赵**</b><div class="label">风险偏好保守型 · 需强提示/阻断</div></div></div></div></main>
+      <div class="detail-action task-action"><button class="btn ghost">筛选排序</button><button class="btn" onclick="go('sendConfirm','product')">下一步：群发确认</button></div>
+    </section>
+
+    <section class="screen no-tab" id="sendConfirm">
+      <header class="subbar"><button class="back-btn" onclick="back()">‹</button><div class="sub-title">群发确认</div><div class="spacer"></div><span class="pill warn">二次确认</span></header>
+      <main class="content"><div class="card hero"><div class="label" id="send-kind-label">活动群发</div><h2 id="send-title" style="margin:6px 0">财富客户积分礼遇</h2><div><b id="send-count">已选择 2 位客户</b>，发送前需确认客户名单与话术内容。</div></div><div class="card"><b>客户名单摘要</b><p class="small muted">张**、王**；手机号与证件号已脱敏，仅对本人管户客户可见。</p></div><div class="card"><b>群发话术预览</b><p class="small muted" id="send-script">您好，您已达标财富客户积分礼遇活动，可在活动期内领取专属权益，详情请查看企业微信消息。</p><button class="btn secondary" style="width:100%">合规范围内编辑</button></div><div class="card"><span class="pill warn">合规提示</span><p class="small muted">发送前校验企微关系、权限、内容合规与产品风险匹配；不匹配客户不可直接群发。</p></div></main>
+      <div class="detail-action task-action"><button class="btn ghost" onclick="back()">返回选择</button><button class="btn" onclick="go('sendResult')">确认企业微信群发</button></div>
+    </section>
+
+    <section class="screen no-tab" id="sendResult">
+      <header class="subbar"><button class="back-btn" onclick="go('marketing')">‹</button><div class="sub-title">发送结果</div><div class="spacer"></div><span class="pill success">已完成</span></header>
+      <main class="content"><div class="card hero"><div class="grid grid-3"><div class="metric"><div class="num">2</div><div class="label">成功</div></div><div class="metric"><div class="num">1</div><div class="label">失败</div></div><div class="metric"><div class="num">3</div><div class="label">总数</div></div></div></div><div class="list-item"><div class="between"><b>赵**</b><span class="pill error">失败</span></div><div class="label">失败原因：客户企微关系异常，可重试或改为电话联系。</div><button class="btn secondary" style="width:100%;margin-top:10px">重试发送</button></div><div class="list-item"><div class="between"><b>发送留痕</b><span class="pill success">已记录</span></div><div class="label">群发内容、对象、结果、失败原因已同步客户动态。</div></div></main>
+      <div class="detail-action task-action"><button class="btn ghost" onclick="go('marketing')">回营销页</button><button class="btn" onclick="go('home')">回首页</button></div>
+    </section>
+
+    <section class="screen" id="mine">
+      <header class="topbar"><div class="brand"><div class="logo">我</div><span>我的</span></div><div class="spacer"></div><button class="icon-btn">设</button></header>
+      <main class="content">
+        <div class="card hero"><div class="between"><div><div style="font-size:20px;font-weight:800">李经理</div><div class="label">厦门分行 · 财富客户经理</div></div><span class="pill" style="background:rgba(255,255,255,.18);color:#fff">本月</span></div><div class="grid grid-2" style="margin-top:14px"><div class="metric"><div class="num">1,286</div><div class="label">管户客户数量</div></div><div class="metric" onclick="go('assetDrill','total')"><div class="num">¥8.56亿</div><div class="label">总资产规模 ›</div></div><div class="metric"><div class="num">+47</div><div class="label">当月新增客户</div></div><div class="metric"><div class="num">+¥3,280万</div><div class="label">资产规模变动</div></div></div></div>
+        <div class="section-title">资产结构下钻 <span class="small muted">点击查看明细</span></div>
+        <div class="grid grid-3"><div class="card clickable" onclick="go('assetDrill','current')"><div class="label">活期</div><b>¥1.12亿</b></div><div class="card clickable" onclick="go('assetDrill','deposit')"><div class="label">存款</div><b>¥2.68亿</b></div><div class="card clickable" onclick="go('assetDrill','wealth')"><div class="label">理财</div><b>¥2.04亿</b></div><div class="card clickable" onclick="go('assetDrill','fund')"><div class="label">基金</div><b>¥0.96亿</b></div><div class="card clickable" onclick="go('assetDrill','eloan')"><div class="label">E秒贷</div><b>授信 ¥1.3亿</b></div><div class="card clickable" onclick="go('assetDrill','inclusive')"><div class="label">普惠贷款</div><b>授信 ¥0.8亿</b></div></div>
+        <div class="section-title">业绩排行榜</div>
+        <div class="card"><div class="chips"><button class="chip active" onclick="setRankScope(this,'个人')">个人</button><button class="chip" onclick="setRankScope(this,'支行')">支行</button><button class="chip" onclick="setRankScope(this,'分行')">分行</button></div><div class="chips" style="margin-top:10px"><button class="chip active" onclick="setRankPeriod(this,'周')">周</button><button class="chip" onclick="setRankPeriod(this,'月')">月</button><button class="chip" onclick="shiftPeriod(-1)">上一周期</button><button class="chip" id="next-period" onclick="shiftPeriod(1)">后一周期</button></div><div class="chips" style="margin-top:10px"><button class="chip active" onclick="setRankDimension(this,'新增大财富客户数')">新增大财富客户数</button><button class="chip" onclick="setRankDimension(this,'E秒贷客户数')">E秒贷客户数</button><button class="chip" onclick="setRankDimension(this,'普惠贷款客户数')">普惠贷款客户数</button><button class="chip" onclick="setRankDimension(this,'当月新增客户数')">当月新增客户数</button><button class="chip" onclick="setRankDimension(this,'资产规模净增')">资产规模净增</button></div><div class="between" style="margin-top:12px"><b id="rank-title">个人 · 周 · 新增大财富客户数</b><button class="btn secondary" onclick="go('rankDetail')">明细</button></div><div class="rank-row"><b>1</b><div><b>王经理</b><div class="label">厦门分行</div></div><b>18</b></div><div class="rank-row me"><b>2</b><div><b>李经理（我）</b><div class="label">厦门分行</div></div><b>15</b></div><div class="rank-row"><b>3</b><div><b>陈经理</b><div class="label">泉州分行</div></div><b>13</b></div></div>
+      </main>
+      <nav class="tabbar"><button class="tab" onclick="go('home')"><span class="ico">首</span>首页</button><button class="tab" onclick="go('customerList')"><span class="ico">客</span>客户</button><button class="tab" onclick="go('marketing')"><span class="ico">营</span>营销</button><button class="tab active" onclick="go('mine')"><span class="ico">我</span>我的</button></nav>
+    </section>
+
+    <section class="screen no-tab" id="assetDrill">
+      <header class="subbar"><button class="back-btn" onclick="back()">‹</button><div class="sub-title" id="asset-title">资产明细</div><div class="spacer"></div><span class="pill">下钻</span></header>
+      <main class="content"><div class="card hero"><div class="label" id="asset-label">总资产规模</div><div class="num" id="asset-amount">¥8.56亿</div><div class="small" style="margin-top:8px">按金额降序 · 更新时间 2026-05-28 09:00</div></div><div class="chips"><button class="chip active">金额降序</button><button class="chip">变动额降序</button><button class="chip">私行客户</button><button class="chip">财富客户</button></div><div class="list-item"><div class="between"><b>张**</b><span class="pill success">+¥86万</span></div><div class="label">私行客户 · 金额/余额/额度 ¥326万 · 更新时间 09:00</div></div><div class="list-item"><div class="between"><b>王**</b><span class="pill warn">-¥12万</span></div><div class="label">财富客户 · 金额/余额/额度 ¥168万 · 更新时间 09:00</div></div><div class="list-item"><div class="between"><b>林**</b><span class="pill success">+¥33万</span></div><div class="label">创富客户 · 金额/余额/额度 ¥96万 · 更新时间 09:00</div></div></main>
+    </section>
+
+    <section class="screen no-tab" id="rankDetail">
+      <header class="subbar"><button class="back-btn" onclick="back()">‹</button><div class="sub-title">排行榜明细</div><div class="spacer"></div><span class="pill">周/月</span></header>
+      <main class="content"><div class="card"><div class="between"><button class="btn ghost">上一周期</button><b>2026年第22周</b><button class="btn ghost" disabled style="opacity:.5">后一周期</button></div></div><div class="card"><div class="chips"><button class="chip active">个人</button><button class="chip">支行</button><button class="chip">分行</button></div><div class="chips" style="margin-top:10px"><button class="chip active">新增大财富客户数</button><button class="chip">E秒贷客户数</button><button class="chip">普惠贷款客户数</button><button class="chip">资产规模净增</button></div></div><div class="rank-row"><b>1</b><div><b>王经理</b><div class="label">新增大财富客户 18 户</div></div><b>¥4,200万</b></div><div class="rank-row me"><b>2</b><div><b>李经理（我）</b><div class="label">新增大财富客户 15 户</div></div><b>¥3,280万</b></div><div class="rank-row"><b>3</b><div><b>陈经理</b><div class="label">新增大财富客户 13 户</div></div><b>¥2,960万</b></div></main>
+    </section>
+  </div>
+
+  <script>
+    const stack = ['home'];
+    let marketingMode = 'activity';
+    let sendMode = 'activity';
+    const assetMap = {
+      total: ['总资产规模明细', '总资产规模', '¥8.56亿'], current: ['活期明细', '活期余额', '¥1.12亿'], deposit: ['存款明细', '存款余额', '¥2.68亿'], wealth: ['理财明细', '理财持仓', '¥2.04亿'], fund: ['基金明细', '基金市值', '¥0.96亿'], eloan: ['E秒贷明细', 'E秒贷授信/余额', '授信 ¥1.3亿 · 已用 ¥0.42亿'], inclusive: ['普惠贷款明细', '普惠贷款授信/余额', '授信 ¥0.8亿 · 已用 ¥0.31亿']
+    };
+    const state = { scope: '个人', period: '周', dim: '新增大财富客户数', offset: 0 };
+    function show(id) { document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); document.getElementById(id).classList.add('active'); }
+    function go(id, param) {
+      if (id === 'marketing' && param === 'product') setTimeout(() => switchMarketing('product'), 0);
+      if (id === 'sendConfirm') configureSend(param || sendMode);
+      if (id === 'assetDrill') configureAsset(param || 'total');
+      const current = stack[stack.length - 1];
+      if (current !== id) stack.push(id);
+      show(id);
+    }
+    function back() { window.history.back(); if (stack.length > 1) stack.pop(); show(stack[stack.length - 1] || 'home'); }
+    function switchMarketing(mode) { marketingMode = mode; document.getElementById('activity-list').classList.toggle('hide', mode !== 'activity'); document.getElementById('product-list').classList.toggle('hide', mode !== 'product'); document.getElementById('m-act').classList.toggle('active', mode === 'activity'); document.getElementById('m-prod').classList.toggle('active', mode === 'product'); }
+    function switchDetailTab(key) { document.querySelectorAll('.detail-panel').forEach(p => p.classList.add('hide')); document.getElementById('detail-' + key).classList.remove('hide'); event.currentTarget.parentElement.querySelectorAll('.chip').forEach(c => c.classList.remove('active')); event.currentTarget.classList.add('active'); }
+    function toggleSelect(el) { el.classList.toggle('selected'); const c = el.querySelector('.check'); c.textContent = el.classList.contains('selected') ? '✓' : ''; }
+    function configureSend(mode) { sendMode = mode; const isProduct = mode === 'product'; document.getElementById('send-kind-label').textContent = isProduct ? '产品群发' : '活动群发'; document.getElementById('send-title').textContent = isProduct ? '稳盈理财 90 天' : '财富客户积分礼遇'; document.getElementById('send-script').textContent = isProduct ? '您好，您近期有资金到期，稳盈理财90天与您的风险等级匹配，可查看产品详情后自主决策。' : '您好，您已达标财富客户积分礼遇活动，可在活动期内领取专属权益，详情请查看企业微信消息。'; }
+    function configureAsset(type) { const a = assetMap[type] || assetMap.total; document.getElementById('asset-title').textContent = a[0]; document.getElementById('asset-label').textContent = a[1]; document.getElementById('asset-amount').textContent = a[2]; }
+    function setRankScope(btn, v) { state.scope = v; activeChip(btn); updateRankTitle(); }
+    function setRankPeriod(btn, v) { state.period = v; state.offset = 0; activeChip(btn); updateRankTitle(); }
+    function setRankDimension(btn, v) { state.dim = v; activeChip(btn); updateRankTitle(); }
+    function shiftPeriod(delta) { state.offset += delta; if (state.offset > 0) state.offset = 0; updateRankTitle(); }
+    function activeChip(btn) { btn.parentElement.querySelectorAll('.chip').forEach(c => c.classList.remove('active')); btn.classList.add('active'); }
+    function updateRankTitle() { const offset = state.offset === 0 ? '当前' : `前${Math.abs(state.offset)}${state.period}`; document.getElementById('rank-title').textContent = `${state.scope} · ${offset}${state.period} · ${state.dim}`; document.getElementById('next-period').style.opacity = state.offset === 0 ? .5 : 1; }
+  </script>
+</body>
+</html>
