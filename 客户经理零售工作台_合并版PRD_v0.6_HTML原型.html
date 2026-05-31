@@ -1,0 +1,239 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>客户经理零售工作台 HTML 可交互原型（PRD v0.6）</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,400,0..1,0" rel="stylesheet" />
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#3B82F6', success: '#10B981', warning: '#F59E0B', danger: '#EF4444',
+            surface: '#F8FAFC', ink: '#111827', muted: '#6B7280'
+          },
+          boxShadow: { card: '0 10px 30px rgba(15, 23, 42, 0.08)' }
+        }
+      }
+    }
+  </script>
+  <style>
+    *{ -webkit-tap-highlight-color: transparent; }
+    body{ font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif; background:#E5E7EB; }
+    .phone{ max-width:430px; min-height:100vh; margin:0 auto; background:#F8FAFC; position:relative; overflow:hidden; }
+    .page{ display:none; padding:76px 16px 92px; min-height:100vh; }
+    .page.active{ display:block; }
+    .chip{ display:inline-flex; align-items:center; gap:4px; border-radius:999px; padding:3px 8px; font-size:11px; font-weight:600; }
+    .card{ background:white; border:1px solid #EEF2F7; border-radius:18px; box-shadow:0 10px 30px rgba(15,23,42,.06); }
+    .tab-content{ display:none; }
+    .tab-content.active{ display:block; }
+    .bottom-sheet{ display:none; }
+    .bottom-sheet.show{ display:flex; }
+    .modal-panel{ animation: rise .22s cubic-bezier(.2,0,0,1); }
+    @keyframes rise{ from{ transform:translateY(24px); opacity:.7 } to{ transform:translateY(0); opacity:1 } }
+    .toast{ position:fixed; left:50%; bottom:104px; transform:translateX(-50%); z-index:120; display:none; background:#111827; color:white; padding:10px 14px; border-radius:999px; font-size:13px; box-shadow:0 10px 24px rgba(0,0,0,.18); }
+  </style>
+</head>
+<body>
+<div class="phone">
+  <header id="topBar" class="fixed top-0 left-0 right-0 z-50 mx-auto max-w-[430px] h-16 bg-white/90 backdrop-blur-xl border-b border-slate-100 px-5 flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <button id="backBtn" onclick="goBack()" class="hidden w-9 h-9 rounded-xl bg-blue-100 items-center justify-center active:scale-95"><span class="material-symbols-outlined text-primary" style="font-size:20px">arrow_back_ios_new</span></button>
+      <div>
+        <h1 id="pageTitle" class="text-[17px] font-bold text-ink leading-tight">零售工作台</h1>
+        <p id="pageSub" class="text-[11px] text-muted">PRD v0.6 / prototype-design</p>
+      </div>
+    </div>
+    <div class="flex items-center gap-2">
+      <button onclick="showToast('已刷新最新经营数据')" class="w-9 h-9 rounded-xl bg-slate-100 flex items-center justify-center"><span class="material-symbols-outlined text-slate-600" style="font-size:20px">sync</span></button>
+    </div>
+  </header>
+
+  <main>
+    <section id="home" class="page active">
+      <div class="rounded-[28px] bg-gradient-to-br from-blue-500 to-blue-700 text-white p-5 shadow-card">
+        <div class="flex justify-between items-start">
+          <div>
+            <p class="text-blue-100 text-xs">早上好，李经理</p>
+            <h2 class="text-2xl font-bold mt-1">今天优先跟进 28 项</h2>
+          </div>
+          <span class="chip bg-white/15 text-white">05-31 13:40 更新</span>
+        </div>
+        <div class="grid grid-cols-4 gap-2 mt-5">
+          <button onclick="routeTo('expiryList')" class="rounded-2xl bg-white/15 p-3 text-center active:scale-95"><span class="material-symbols-outlined">event_upcoming</span><b class="block text-xl">8</b><span class="text-[11px]">到期</span></button>
+          <button onclick="routeTo('activityReachedList')" class="rounded-2xl bg-white/15 p-3 text-center active:scale-95"><span class="material-symbols-outlined">redeem</span><b class="block text-xl">6</b><span class="text-[11px]">达标</span></button>
+          <button onclick="routeTo('outflowList')" class="rounded-2xl bg-white/15 p-3 text-center active:scale-95"><span class="material-symbols-outlined">trending_down</span><b class="block text-xl">4</b><span class="text-[11px]">转出</span></button>
+          <button onclick="routeTo('birthdayList')" class="rounded-2xl bg-white/15 p-3 text-center active:scale-95"><span class="material-symbols-outlined">cake</span><b class="block text-xl">10</b><span class="text-[11px]">生日</span></button>
+        </div>
+      </div>
+
+      <div class="mt-4 grid grid-cols-4 gap-3">
+        <button onclick="routeTo('customers')" class="card py-3 flex flex-col items-center gap-1"><span class="material-symbols-outlined text-primary">group</span><span class="text-xs">客户查询</span></button>
+        <button onclick="routeTo('marketing')" class="card py-3 flex flex-col items-center gap-1"><span class="material-symbols-outlined text-emerald-500">campaign</span><span class="text-xs">营销</span></button>
+        <button onclick="routeTo('dynamics')" class="card py-3 flex flex-col items-center gap-1"><span class="material-symbols-outlined text-amber-500">notifications</span><span class="text-xs">动态</span></button>
+        <button onclick="showToast('收入明细二期接入')" class="card py-3 flex flex-col items-center gap-1"><span class="material-symbols-outlined text-violet-500">payments</span><span class="text-xs">绩效</span></button>
+      </div>
+
+      <section class="mt-5">
+        <div class="flex items-center justify-between mb-3"><h3 class="font-bold text-ink">优先联系客户</h3><button onclick="routeTo('top10List')" class="text-primary text-sm font-semibold">查看全部</button></div>
+        <div class="space-y-3" id="priorityHomeList"></div>
+      </section>
+
+      <section class="mt-5">
+        <div class="flex items-center justify-between mb-3"><h3 class="font-bold text-ink">最近动态</h3><button onclick="routeTo('dynamics')" class="text-primary text-sm font-semibold">全部动态</button></div>
+        <div class="card divide-y divide-slate-100">
+          <button onclick="openDynamicDetail('商机推送')" class="w-full p-4 text-left flex gap-3"><span class="w-9 h-9 rounded-full bg-purple-100 text-purple-600 flex items-center justify-center material-symbols-outlined">tips_and_updates</span><div><p class="text-sm font-semibold">王** 触发大额转出商机</p><p class="text-xs text-muted mt-1">05-31 10:20 · 建议今日联系确认资金用途</p></div></button>
+          <button onclick="openDynamicDetail('政策通知')" class="w-full p-4 text-left flex gap-3"><span class="w-9 h-9 rounded-full bg-blue-100 text-primary flex items-center justify-center material-symbols-outlined">policy</span><div><p class="text-sm font-semibold">理财产品营销合规提示更新</p><p class="text-xs text-muted mt-1">动态列表不展示附件数量，详情页展示正文</p></div></button>
+        </div>
+      </section>
+    </section>
+
+    <section id="customers" class="page">
+      <div class="flex gap-2 mb-4"><div class="flex-1 h-11 bg-white rounded-2xl px-3 flex items-center gap-2 border border-slate-100"><span class="material-symbols-outlined text-slate-400">search</span><input class="flex-1 outline-none text-sm" placeholder="搜索姓名 / 手机号 / 客户号" /></div><button onclick="showSheet('filterSheet')" class="w-11 h-11 rounded-2xl bg-primary text-white flex items-center justify-center"><span class="material-symbols-outlined">tune</span></button></div>
+      <div class="flex gap-2 overflow-x-auto pb-2 mb-2"><button class="chip bg-blue-100 text-primary">全部 386</button><button class="chip bg-white text-muted">重点客户</button><button class="chip bg-white text-muted">今日未联系</button><button class="chip bg-white text-muted">无产品</button></div>
+      <div class="space-y-3" id="customerList"></div>
+    </section>
+
+    <section id="customerDetail" class="page">
+      <div class="card p-5 bg-gradient-to-br from-blue-600 to-blue-800 text-white border-0">
+        <div class="flex justify-between items-start">
+          <div><div class="flex items-center gap-2"><h2 class="text-2xl font-bold">张*</h2><span class="chip bg-white/20 text-white">财富客户</span><span id="detailKeyTag" class="chip bg-amber-400 text-white">重点⭐</span></div><p class="text-blue-100 text-xs mt-2">138****1234 · C3稳健型 · 本年新客</p></div>
+          <button id="detailStar" onclick="toggleKeyMark()" class="w-10 h-10 rounded-2xl bg-white/20 flex items-center justify-center"><span class="material-symbols-outlined" style="font-size:22px">star</span></button>
+        </div>
+        <div class="grid grid-cols-3 gap-3 mt-5 text-center">
+          <div class="rounded-2xl bg-white/15 p-3"><p class="text-xs text-blue-100">总AUM</p><b class="text-lg">¥286万</b></div>
+          <div class="rounded-2xl bg-white/15 p-3"><p class="text-xs text-blue-100">三年峰值</p><b class="text-lg">¥420万</b></div>
+          <div class="rounded-2xl bg-white/15 p-3"><p class="text-xs text-blue-100">最近到期</p><b class="text-lg">06.03</b></div>
+        </div>
+      </div>
+
+      <div class="card p-4 mt-4">
+        <h3 class="font-bold mb-3">资产总览</h3>
+        <div class="grid grid-cols-4 gap-2 text-center text-xs"><div><b class="block text-base text-ink">126万</b><span class="text-muted">存款</span></div><div><b class="block text-base text-ink">90万</b><span class="text-muted">理财</span></div><div><b class="block text-base text-ink">40万</b><span class="text-muted">基金</span></div><div><b class="block text-base text-ink">30万</b><span class="text-muted">贷款</span></div></div>
+      </div>
+      <div class="card p-4 mt-4">
+        <div class="flex justify-between"><h3 class="font-bold">价值分析</h3><span class="text-xs text-muted">2026-05-31 更新</span></div>
+        <p class="text-sm text-muted mt-2">当前 AUM 较三年峰值低 ¥134万，06.03 有 ¥60万定期到期，建议今日联系续作。</p>
+      </div>
+
+      <div class="mt-4 flex gap-2 overflow-x-auto pb-2" id="detailTabs"></div>
+      <div id="detailTabPanels" class="space-y-3"></div>
+    </section>
+
+    <section id="marketing" class="page">
+      <div class="card p-2 mb-4 flex bg-white"><button id="mktActivityBtn" onclick="switchMarketing('activity')" class="flex-1 h-10 rounded-xl bg-primary text-white text-sm font-semibold">活动营销</button><button id="mktProductBtn" onclick="switchMarketing('product')" class="flex-1 h-10 rounded-xl text-muted text-sm font-semibold">产品营销</button></div>
+      <div id="activityMarketing" class="space-y-3">
+        <button onclick="routeTo('activityDetail')" class="card p-4 w-full text-left"><div class="flex justify-between"><h3 class="font-bold">财富客户权益季</h3><span class="chip bg-emerald-100 text-emerald-600">进行中</span></div><p class="text-sm text-muted mt-2">参与资产提升达标可领取权益，适配财富/潜力客户。</p><div class="mt-3 flex gap-2"><span class="chip bg-blue-100 text-primary">限时</span><span class="chip bg-amber-100 text-amber-600">重点活动</span></div></button>
+        <div class="card p-4 border-dashed text-center"><span class="material-symbols-outlined text-slate-300 text-4xl">inbox</span><p class="text-sm text-muted mt-1">暂无更多活动，保留空状态展示</p></div>
+      </div>
+      <div id="productMarketing" class="hidden space-y-3">
+        <button onclick="routeTo('productDetail')" class="card p-4 w-full text-left"><div class="flex justify-between"><h3 class="font-bold">稳盈 90 天理财</h3><span class="chip bg-blue-100 text-primary">R2</span></div><p class="text-sm text-muted mt-2">1万元起购，适配 C2-C5 客户；风险不匹配时阻断群发。</p><div class="mt-3 flex justify-between text-xs text-muted"><span>期限 90天</span><span>业绩基准 2.8%-3.1%</span></div></button>
+      </div>
+    </section>
+
+    <section id="dynamics" class="page">
+      <div id="dynamicTabs" class="flex gap-2 overflow-x-auto pb-3"></div>
+      <div class="space-y-3" id="dynamicList"></div>
+    </section>
+
+    <section id="mine" class="page">
+      <div class="card p-5 bg-gradient-to-br from-slate-900 to-blue-900 text-white border-0"><p class="text-blue-100 text-xs">客户经理 / 城东支行</p><h2 class="text-2xl font-bold mt-1">李经理</h2><div class="grid grid-cols-3 gap-3 mt-5"><div><b class="block text-xl">386</b><span class="text-xs text-blue-100">管户客户</span></div><div><b class="block text-xl">¥1.26亿</b><span class="text-xs text-blue-100">总AUM</span></div><div><b class="block text-xl">12</b><span class="text-xs text-blue-100">机构排名</span></div></div></div>
+      <div class="grid grid-cols-2 gap-3 mt-4"><button class="card p-4 text-left"><span class="material-symbols-outlined text-primary">leaderboard</span><p class="font-semibold mt-2">零售排行榜</p><p class="text-xs text-muted">周/月周期切换</p></button><button class="card p-4 text-left"><span class="material-symbols-outlined text-emerald-500">receipt_long</span><p class="font-semibold mt-2">收入明细</p><p class="text-xs text-muted">本月绩效收入</p></button><button class="card p-4 text-left"><span class="material-symbols-outlined text-amber-500">settings</span><p class="font-semibold mt-2">设置</p><p class="text-xs text-muted">通知与权限</p></button><button class="card p-4 text-left"><span class="material-symbols-outlined text-purple-500">help</span><p class="font-semibold mt-2">帮助中心</p><p class="text-xs text-muted">操作说明</p></button></div>
+    </section>
+
+    <section id="expiryList" class="page secondary-list" data-title="到期提醒列表" data-sub="首页二级页 / 6.1.4.1"></section>
+    <section id="activityReachedList" class="page secondary-list" data-title="活动达标列表" data-sub="首页二级页 / 6.1.4.2"></section>
+    <section id="outflowList" class="page secondary-list" data-title="大额转出列表" data-sub="首页二级页 / 6.1.4.3"></section>
+    <section id="birthdayList" class="page secondary-list" data-title="生日纪念列表" data-sub="首页二级页 / 6.1.4.4"></section>
+    <section id="top10List" class="page secondary-list" data-title="优先联系 TOP10" data-sub="首页二级页 / 6.1.4.5"></section>
+
+    <section id="customerDynamics" class="page">
+      <div class="card p-4 mb-4"><div class="flex justify-between"><div><h2 class="font-bold">张* 客户动态</h2><p class="text-xs text-muted mt-1">产品、资产、联系、渠道、活动时间线</p></div><button onclick="routeTo('customerDetail')" class="text-primary text-sm font-semibold">回详情</button></div></div>
+      <div class="flex gap-2 overflow-x-auto pb-3" id="customerDynTabs"></div>
+      <div class="space-y-3" id="customerDynList"></div>
+    </section>
+
+    <section id="dynamicDetail" class="page">
+      <article class="card p-5">
+        <span id="dynamicDetailType" class="chip bg-blue-100 text-primary">动态详情</span>
+        <h2 id="dynamicDetailTitle" class="text-xl font-bold mt-3">商机推送详情</h2>
+        <p class="text-xs text-muted mt-1">2026-05-31 10:20 · 系统已标记已读</p>
+        <div id="dynamicDetailBody" class="mt-4 text-sm text-slate-700 space-y-3"></div>
+        <div class="mt-5 flex gap-2"><button onclick="routeTo('customerDetail')" class="flex-1 h-11 rounded-xl bg-primary text-white font-semibold text-sm">进入客户上下文</button><button onclick="showNoPermission()" class="flex-1 h-11 rounded-xl border border-slate-200 text-slate-700 font-semibold text-sm">异常状态</button></div>
+      </article>
+    </section>
+
+    <section id="activityDetail" class="page marketing-flow" data-kind="activity"></section>
+    <section id="productDetail" class="page marketing-flow" data-kind="product"></section>
+    <section id="matchedCustomers" class="page"></section>
+    <section id="sendConfirm" class="page"></section>
+    <section id="sendResult" class="page"></section>
+  </main>
+
+  <nav id="bottomNav" class="fixed bottom-0 left-0 right-0 z-40 mx-auto max-w-[430px] bg-white border-t border-slate-100" style="padding-bottom:env(safe-area-inset-bottom)">
+    <div class="grid grid-cols-5 px-2 py-2 text-[10px]">
+      <button onclick="routeTo('home')" data-nav="home" class="nav-btn flex flex-col items-center gap-1 py-1 text-primary"><span class="material-symbols-outlined" style="font-size:22px">home</span>首页</button>
+      <button onclick="routeTo('customers')" data-nav="customers" class="nav-btn flex flex-col items-center gap-1 py-1 text-slate-400"><span class="material-symbols-outlined" style="font-size:22px">group</span>客户</button>
+      <button onclick="routeTo('marketing')" data-nav="marketing" class="nav-btn flex flex-col items-center gap-1 py-1 text-slate-400"><span class="material-symbols-outlined" style="font-size:22px">campaign</span>营销</button>
+      <button onclick="routeTo('dynamics')" data-nav="dynamics" class="nav-btn flex flex-col items-center gap-1 py-1 text-slate-400"><span class="material-symbols-outlined" style="font-size:22px">notifications</span>动态</button>
+      <button onclick="routeTo('mine')" data-nav="mine" class="nav-btn flex flex-col items-center gap-1 py-1 text-slate-400"><span class="material-symbols-outlined" style="font-size:22px">person</span>我的</button>
+    </div>
+  </nav>
+
+  <nav id="detailActionBar" class="hidden fixed bottom-0 left-0 right-0 bg-white border-t border-slate-100 z-40 mx-auto max-w-[430px]" style="padding-bottom:env(safe-area-inset-bottom)">
+    <div class="flex items-center justify-around py-3 px-3">
+      <button onclick="showToast('即将拨打 138****1234，并写入联系留痕')" class="flex flex-col items-center gap-1 flex-1 active:scale-95"><span class="w-9 h-9 rounded-full bg-primary text-white flex items-center justify-center material-symbols-outlined" style="font-size:18px">call</span><span class="text-[10px] text-muted">拨打电话</span></button>
+      <button onclick="showBriefModal()" class="flex flex-col items-center gap-1 flex-1 active:scale-95"><span class="w-9 h-9 rounded-full bg-[#9333ea] text-white flex items-center justify-center material-symbols-outlined" style="font-size:18px">summarize</span><span class="text-[10px] text-muted">AI简报</span></button>
+      <button onclick="showInviteModal()" class="flex flex-col items-center gap-1 flex-1 active:scale-95"><span class="w-9 h-9 rounded-full bg-slate-100 text-slate-600 flex items-center justify-center material-symbols-outlined" style="font-size:18px">edit_calendar</span><span class="text-[10px] text-muted">添加邀约</span></button>
+      <button onclick="routeTo('customerDynamics')" class="flex flex-col items-center gap-1 flex-1 active:scale-95"><span class="w-9 h-9 rounded-full bg-slate-100 text-slate-600 flex items-center justify-center material-symbols-outlined" style="font-size:18px">history</span><span class="text-[10px] text-muted">客户动态</span></button>
+    </div>
+  </nav>
+
+  <div id="briefModal" class="bottom-sheet fixed inset-0 z-[100] bg-black/45 items-end justify-center" onclick="if(event.target===this)hideSheet('briefModal')"><div class="modal-panel bg-white rounded-t-3xl w-full max-w-[430px] max-h-[86vh] overflow-y-auto p-5"><div class="flex justify-between items-center"><h3 class="font-bold">AI 客户简报</h3><button onclick="hideSheet('briefModal')" class="w-8 h-8 rounded-full bg-slate-100"><span class="material-symbols-outlined" style="font-size:18px">close</span></button></div><div class="mt-4 space-y-3"><div class="rounded-2xl bg-purple-50 p-4"><p class="text-sm font-semibold text-purple-700">客户价值摘要</p><p class="text-sm mt-2 text-slate-700">张* 当前 AUM ¥286万，三年峰值 ¥420万，近期资金较峰值回落 ¥134万。</p></div><div class="rounded-2xl bg-blue-50 p-4"><p class="text-sm font-semibold text-primary">建议动作</p><ul class="text-sm mt-2 text-slate-700 list-disc pl-4"><li>06.03 定期到期，建议今日联系续作。</li><li>可推荐稳盈 90 天理财，发送前需确认风险适配。</li><li>未签约生活缴费，可发起渠道签约邀约。</li></ul></div><p class="text-xs text-muted">生成时间：2026-05-31 13:40；数据来源：资产、产品配置、商机、营销活动、渠道签约、客户动态。</p><div class="grid grid-cols-2 gap-3"><button onclick="showToast('已复制简报，复制动作已留痕')" class="h-11 rounded-xl bg-primary text-white font-semibold text-sm">复制简报</button><button onclick="showToast('重新生成中…')" class="h-11 rounded-xl border border-slate-200 font-semibold text-sm">重新生成</button></div></div></div></div>
+
+  <div id="inviteModal" class="bottom-sheet fixed inset-0 z-[100] bg-black/45 items-end justify-center" onclick="if(event.target===this)hideInviteModal()"><div class="modal-panel bg-white rounded-t-3xl w-full max-w-[430px] p-5"><div class="flex justify-between items-center"><h3 class="font-bold">添加邀约</h3><button onclick="hideInviteModal()" class="w-8 h-8 rounded-full bg-slate-100"><span class="material-symbols-outlined" style="font-size:18px">close</span></button></div><div class="mt-4 space-y-3"><label class="block text-xs text-muted">邀约日期<input id="inviteDate" type="date" class="mt-1 w-full h-11 rounded-xl border border-slate-200 px-3 text-sm"></label><label class="block text-xs text-muted">邀约时间<input id="inviteTime" type="time" value="14:00" class="mt-1 w-full h-11 rounded-xl border border-slate-200 px-3 text-sm"></label><div><p class="text-xs text-muted mb-1">邀约方式</p><div class="grid grid-cols-3 gap-2"><button onclick="selectInviteType(this,'电话联系')" class="invite-type h-10 rounded-xl bg-blue-50 border border-primary text-primary text-sm">电话联系</button><button onclick="selectInviteType(this,'面谈')" class="invite-type h-10 rounded-xl border border-slate-200 text-muted text-sm">面谈</button><button onclick="selectInviteType(this,'其他')" class="invite-type h-10 rounded-xl border border-slate-200 text-muted text-sm">其他</button></div></div><label class="block text-xs text-muted">邀约事项<textarea id="inviteRemark" maxlength="120" rows="3" class="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm" placeholder="请输入邀约事项，不超过120字">沟通定期到期续作与理财配置</textarea></label><div class="grid grid-cols-2 gap-3 pt-1"><button onclick="hideInviteModal()" class="h-11 rounded-xl border border-slate-200 font-semibold text-sm">取消</button><button onclick="submitInvite()" class="h-11 rounded-xl bg-primary text-white font-semibold text-sm">保存</button></div></div></div></div>
+
+  <div id="filterSheet" class="bottom-sheet fixed inset-0 z-[100] bg-black/45 items-end justify-center" onclick="if(event.target===this)hideSheet('filterSheet')"><div class="modal-panel bg-white rounded-t-3xl w-full max-w-[430px] p-5"><div class="flex justify-between"><h3 class="font-bold">高级筛选</h3><button onclick="hideSheet('filterSheet')" class="text-muted">关闭</button></div><div class="mt-4 space-y-4"><div><p class="text-xs text-muted mb-2">客户类型</p><div class="flex flex-wrap gap-2"><span class="chip bg-blue-100 text-primary">财富</span><span class="chip bg-slate-100 text-muted">潜力</span><span class="chip bg-slate-100 text-muted">基础</span><span class="chip bg-slate-100 text-muted">有效</span></div></div><div><p class="text-xs text-muted mb-2">是否重点客户</p><div class="flex gap-2"><span class="chip bg-blue-100 text-primary">是</span><span class="chip bg-slate-100 text-muted">否</span><span class="chip bg-slate-100 text-muted">不限</span></div></div><button onclick="hideSheet('filterSheet');showToast('已应用筛选：重点财富客户')" class="w-full h-11 rounded-xl bg-primary text-white font-semibold">应用筛选</button></div></div></div>
+
+  <div id="toast" class="toast"></div>
+</div>
+<script>
+const routes = {
+  home:['零售工作台','首页：待办 / 优先联系 / 动态'], customers:['客户','客户检索 / 筛选 / 重点标记'], marketing:['营销','活动与产品营销链路'], dynamics:['动态','商户 / 商机 / 业务 / 通知'], mine:['我的','个人经营概览'], customerDetail:['客户详情','底部独立按钮与5个内容Tab'], customerDynamics:['客户动态','客户详情二级页 / 8.4.3'], dynamicDetail:['动态详情','动态页二级页 / 6.5.2'], matchedCustomers:['适配客户','营销详情二级页'], sendConfirm:['群发确认','合规二次确认'], sendResult:['群发结果','成功/失败/可重试'], activityDetail:['活动详情','营销链路 / 活动'], productDetail:['产品详情','营销链路 / 产品']
+};
+['expiryList','activityReachedList','outflowList','birthdayList','top10List'].forEach(id=>routes[id]=[document.getElementById(id).dataset.title,document.getElementById(id).dataset.sub]);
+let historyStack=['home']; let selectedInviteType='电话联系'; let dynamicType='商机推送'; let keyMarked=true;
+const customers=[['张*','财富客户','¥286万','定期到期 06.03','138****1234',true],['王**','潜力客户','¥92万','大额转出 ¥18万','139****6655',false],['刘*','基础客户','¥38万','今日生日','136****8899',false]];
+function routeTo(id, push=true){ document.querySelectorAll('.page').forEach(p=>p.classList.remove('active')); document.getElementById(id).classList.add('active'); if(push && historyStack.at(-1)!==id) historyStack.push(id); const meta=routes[id]||['零售工作台','']; pageTitle.textContent=meta[0]; pageSub.textContent=meta[1]; backBtn.classList.toggle('hidden',['home','customers','marketing','dynamics','mine'].includes(id)); backBtn.classList.toggle('flex',!['home','customers','marketing','dynamics','mine'].includes(id)); bottomNav.classList.toggle('hidden',['customerDetail','customerDynamics'].includes(id)); detailActionBar.classList.toggle('hidden',id!=='customerDetail'); document.querySelectorAll('.nav-btn').forEach(b=>{b.classList.remove('text-primary');b.classList.add('text-slate-400')}); const nav=document.querySelector(`[data-nav="${['expiryList','activityReachedList','outflowList','birthdayList','top10List'].includes(id)?'home':id}"]`); if(nav){nav.classList.add('text-primary');nav.classList.remove('text-slate-400')} window.scrollTo(0,0); if(document.querySelector(`#${id}.secondary-list`)) renderSecondary(id); if(id==='matchedCustomers') renderMatched(); if(id==='sendConfirm') renderConfirm(); if(id==='sendResult') renderResult(); if(id==='activityDetail'||id==='productDetail') renderMarketingDetail(id); }
+function goBack(){ historyStack.pop(); routeTo(historyStack.at(-1)||'home',false); }
+function showToast(msg){ toast.textContent=msg; toast.style.display='block'; clearTimeout(window.toastTimer); window.toastTimer=setTimeout(()=>toast.style.display='none',1800); }
+function showSheet(id){ document.getElementById(id).classList.add('show'); }
+function hideSheet(id){ document.getElementById(id).classList.remove('show'); }
+function showBriefModal(){ showSheet('briefModal'); }
+function showInviteModal(){ showSheet('inviteModal'); const d=new Date(); d.setDate(d.getDate()+1); inviteDate.value=d.toISOString().slice(0,10); }
+function hideInviteModal(){ hideSheet('inviteModal'); }
+function selectInviteType(el,type){ selectedInviteType=type; document.querySelectorAll('.invite-type').forEach(b=>{b.className='invite-type h-10 rounded-xl border border-slate-200 text-muted text-sm'}); el.className='invite-type h-10 rounded-xl bg-blue-50 border border-primary text-primary text-sm'; }
+function submitInvite(){ if(!inviteDate.value || !inviteTime.value || !inviteRemark.value.trim()){ showToast('请完整填写邀约日期、时间、方式和事项'); return; } hideInviteModal(); showToast('邀约已添加，并写入客户动态/留痕'); }
+function toggleKeyMark(){ keyMarked=!keyMarked; detailKeyTag.style.display=keyMarked?'inline-flex':'none'; detailStar.querySelector('span').textContent=keyMarked?'star':'star_border'; showToast(keyMarked?'已标记为重点客户':'已取消重点标记'); renderCustomers(); }
+function cardForCustomer(c,i,rank=false){ return `<button onclick="routeTo('customerDetail')" class="card p-4 w-full text-left ${c[5]?'border-l-4 border-l-red-500':''}"><div class="flex justify-between items-start"><div><div class="flex items-center gap-2">${rank?`<b class="text-primary">#${i+1}</b>`:''}<h3 class="font-bold text-ink">${c[0]}</h3><span class="chip bg-blue-100 text-primary">${c[1]}</span>${c[5]?'<span class="chip bg-amber-100 text-amber-600">重点</span>':''}</div><p class="text-xs text-muted mt-1">${c[4]} · AUM ${c[2]}</p><p class="text-sm mt-2 text-slate-700">${c[3]}</p></div><span class="material-symbols-outlined text-slate-300">chevron_right</span></div><div class="mt-3 grid grid-cols-4 gap-2"><span class="chip bg-slate-100 text-muted justify-center">拨打</span><span class="chip bg-purple-100 text-purple-600 justify-center">AI简报</span><span class="chip bg-slate-100 text-muted justify-center">邀约</span><span class="chip bg-slate-100 text-muted justify-center">动态</span></div></button>`; }
+function renderCustomers(){ customerList.innerHTML=customers.map((c,i)=>cardForCustomer(c,i)).join(''); priorityHomeList.innerHTML=customers.slice(0,3).map((c,i)=>cardForCustomer(c,i,true)).join(''); }
+function renderDetailTabs(){ const tabs=['产品配置','商机信息','营销活动','渠道签约','基本信息']; detailTabs.innerHTML=tabs.map((t,i)=>`<button onclick="switchDetailTab(${i})" id="dt${i}" class="px-4 h-10 rounded-full text-sm font-semibold ${i===0?'bg-primary text-white':'bg-white text-muted'}">${t}</button>`).join(''); detailTabPanels.innerHTML=tabs.map((t,i)=>`<div id="dp${i}" class="tab-content ${i===0?'active':''}">${detailPanel(i)}</div>`).join(''); }
+function switchDetailTab(i){ document.querySelectorAll('#detailTabs button').forEach(b=>b.className='px-4 h-10 rounded-full text-sm font-semibold bg-white text-muted'); document.getElementById('dt'+i).className='px-4 h-10 rounded-full text-sm font-semibold bg-primary text-white'; document.querySelectorAll('#detailTabPanels .tab-content').forEach(p=>p.classList.remove('active')); document.getElementById('dp'+i).classList.add('active'); }
+function detailPanel(i){ const panels=[`<div class="card p-4"><div class="flex justify-between"><h3 class="font-bold">产品到期提醒</h3><span class="chip bg-red-100 text-red-600">紧急</span></div><p class="text-sm mt-2">三年定期存款 ¥60万，06.03 到期，剩余3天。</p><div class="mt-3 flex gap-2"><button onclick="showToast('已生成到期提醒AI话术')" class="h-9 px-3 rounded-xl bg-[#9333ea] text-white text-xs font-semibold">AI话术</button><button class="h-9 px-3 rounded-xl bg-primary text-white text-xs font-semibold">联系续作</button></div></div><div class="card p-4 mt-3"><h3 class="font-bold">产品持有情况</h3><div class="mt-3 rounded-xl bg-slate-50 p-3 grid grid-cols-3 gap-2 text-xs"><div><p class="text-muted">余额合计</p><b>¥216万</b></div><div><p class="text-muted">三年峰值</p><b>¥420万</b></div><div><p class="text-muted">最近到期</p><b>06.03</b></div></div><p class="text-sm mt-3">定期存款、稳盈理财、指数基金；无持有产品客户时展示推荐产品空状态。</p></div>`, `<div class="card p-4"><h3 class="font-bold">待处理商机</h3><p class="text-sm text-slate-700 mt-2">大额转出挽留 · 高优先级 · 截止 2026-05-31</p><div class="mt-3 flex gap-2"><button onclick="showToast('已生成商机跟进AI话术')" class="h-9 px-3 rounded-xl bg-[#9333ea] text-white text-xs font-semibold">AI话术</button><button class="h-9 px-3 rounded-xl bg-primary text-white text-xs font-semibold">添加邀约</button></div></div>`, `<div class="card p-4"><h3 class="font-bold">财富客户权益季</h3><p class="text-sm text-slate-700 mt-2">进度 80%，达标后可领取权益。</p><div class="mt-3 flex gap-2"><button onclick="showToast('已生成活动提醒AI话术')" class="h-9 px-3 rounded-xl bg-[#9333ea] text-white text-xs font-semibold">AI话术</button><button class="h-9 px-3 rounded-xl bg-primary text-white text-xs font-semibold">提醒达标</button></div></div>`, `<div class="card p-4"><h3 class="font-bold">渠道签约</h3><div class="mt-3 space-y-2 text-sm"><p>手机银行 <span class="text-emerald-600">已签约</span></p><p>生活缴费 <span class="text-amber-600">未签约</span> <button onclick="showToast('已生成渠道签约邀约话术')" class="ml-2 text-purple-600 font-semibold">AI话术</button></p><p>信用卡 <span class="text-slate-500">处理中</span></p></div></div>`, `<div class="card p-4"><h3 class="font-bold">基本信息</h3><div class="mt-3 divide-y text-sm"><p class="py-2 flex justify-between"><span class="text-muted">生日</span><b>1984-06-01</b></p><p class="py-2 flex justify-between"><span class="text-muted">客户编号</span><b>ECIF****2389</b></p><p class="py-2 flex justify-between"><span class="text-muted">证件号</span><b>3301**********88</b></p><p class="py-2 flex justify-between"><span class="text-muted">归属机构</span><b>城东支行</b></p></div></div>`]; return panels[i]; }
+function renderSecondary(id){ const title=routes[id][0]; const samples={expiryList:['李** · 稳盈存款 06.02 到期 · ¥80万','陈* · 结构性存款 06.03 到期 · ¥35万'],activityReachedList:['周** · 财富权益季已达标 · 06.10 前领奖','赵* · 积分礼遇已达标 · 待提醒'],outflowList:['王** · 单日转出 ¥18万 · 占比32%','刘* · 累计转出 ¥12万 · 待联系'],birthdayList:['刘* · 今日生日 · 基础客户','沈** · 今日生日 · 重点客户'],top10List:customers.map((c,i)=>`#${i+1} ${c[0]} · ${c[3]} · ${c[2]}`)}[id]; document.getElementById(id).innerHTML=`<div class="card p-4 mb-4"><h2 class="font-bold">${title}</h2><p class="text-xs text-muted mt-1">覆盖默认、空状态、无权限与操作留痕提示。</p></div><div class="space-y-3">${samples.map((s,i)=>`<div class="card p-4"><div class="flex justify-between"><p class="font-semibold text-sm">${s}</p><span class="chip ${i?'bg-slate-100 text-muted':'bg-red-100 text-red-600'}">${i?'一般':'紧急'}</span></div><div class="mt-3 flex gap-2"><button onclick="routeTo('customerDetail')" class="h-9 px-3 rounded-xl bg-primary text-white text-xs font-semibold">客户详情</button><button onclick="showToast('即将拨打授权手机号')" class="h-9 px-3 rounded-xl bg-slate-100 text-slate-700 text-xs font-semibold">拨打电话</button><button onclick="showToast('已生成AI话术')" class="h-9 px-3 rounded-xl bg-[#9333ea] text-white text-xs font-semibold">AI话术</button></div></div>`).join('')}<div class="card p-5 text-center border-dashed"><span class="material-symbols-outlined text-slate-300 text-4xl">inbox</span><p class="text-sm text-muted">空状态：暂无${title.replace('列表','')}</p></div></div>`; }
+function switchMarketing(kind){ activityMarketing.classList.toggle('hidden',kind!=='activity'); productMarketing.classList.toggle('hidden',kind!=='product'); mktActivityBtn.className=`flex-1 h-10 rounded-xl ${kind==='activity'?'bg-primary text-white':'text-muted'} text-sm font-semibold`; mktProductBtn.className=`flex-1 h-10 rounded-xl ${kind==='product'?'bg-primary text-white':'text-muted'} text-sm font-semibold`; }
+function renderMarketingDetail(id){ const isAct=id==='activityDetail'; document.getElementById(id).innerHTML=`<div class="card p-5"><span class="chip bg-blue-100 text-primary">${isAct?'活动详情':'产品详情'}</span><h2 class="text-xl font-bold mt-3">${isAct?'财富客户权益季':'稳盈 90 天理财'}</h2><p class="text-sm text-muted mt-2">${isAct?'活动说明、参与条件、达标规则、权益规则、活动时间与合规提示。':'产品说明、风险等级 R2、起购金额 ¥1万、期限、收益说明与合规提示。'}</p><div class="rounded-2xl bg-amber-50 p-3 mt-4 text-sm text-amber-700">合规提示：发送前需客户经理确认，产品风险高于客户风险偏好时阻断群发。</div><button onclick="routeTo('matchedCustomers')" class="mt-5 w-full h-11 rounded-xl bg-primary text-white font-semibold">查看适配客户</button></div>`; }
+function renderMatched(){ matchedCustomers.innerHTML=`<div class="card p-4 mb-3"><h2 class="font-bold">适配客户列表</h2><p class="text-xs text-muted">支持筛选、单选/多选、风险匹配校验。</p></div>${customers.map((c,i)=>`<label class="card p-4 mb-3 flex items-start gap-3"><input type="checkbox" class="mt-1" ${i<2?'checked':''}><div class="flex-1"><p class="font-semibold">${c[0]} <span class="chip bg-blue-100 text-primary">${c[1]}</span></p><p class="text-xs text-muted mt-1">${c[4]} · ${c[2]} · 适配原因：${i===1?'资产流失挽留':'到期续作'}</p><p class="text-xs mt-2 ${i===2?'text-red-600':'text-emerald-600'}">${i===2?'风险不匹配，阻断群发':'风险匹配通过'}</p></div></label>`).join('')}<button onclick="routeTo('sendConfirm')" class="w-full h-12 rounded-xl bg-primary text-white font-semibold">下一步：群发确认</button>`; }
+function renderConfirm(){ sendConfirm.innerHTML=`<div class="card p-5"><h2 class="text-xl font-bold">群发确认</h2><p class="text-sm text-muted mt-2">发送对象：2人；已排除 1 名风险阻断客户。</p><textarea class="mt-4 w-full rounded-2xl border border-slate-200 p-3 text-sm" rows="5">您好，近期有适配的财富权益活动，建议您关注活动权益与达标规则，如需了解我可以为您详细介绍。</textarea><div class="rounded-2xl bg-red-50 p-3 mt-4 text-sm text-red-600">合规提示：话术发送前需人工确认，不允许自动群发。</div><button onclick="routeTo('sendResult')" class="mt-5 w-full h-11 rounded-xl bg-primary text-white font-semibold">确认发送</button></div>`; }
+function renderResult(){ sendResult.innerHTML=`<div class="card p-5 text-center"><span class="material-symbols-outlined text-emerald-500 text-5xl">check_circle</span><h2 class="text-xl font-bold mt-2">群发完成</h2><div class="grid grid-cols-3 gap-3 mt-5"><div class="rounded-2xl bg-emerald-50 p-3"><b class="text-emerald-600 text-xl">1</b><p class="text-xs text-muted">成功</p></div><div class="rounded-2xl bg-red-50 p-3"><b class="text-red-600 text-xl">1</b><p class="text-xs text-muted">失败</p></div><div class="rounded-2xl bg-amber-50 p-3"><b class="text-amber-600 text-xl">1</b><p class="text-xs text-muted">阻断</p></div></div><p class="text-sm text-muted mt-4">失败原因：企微关系异常，可重试；风险不匹配不可重试。</p><button onclick="routeTo('marketing')" class="mt-5 w-full h-11 rounded-xl bg-primary text-white font-semibold">返回营销</button></div>`; }
+function openDynamicDetail(type){ dynamicType=type; routeTo('dynamicDetail'); dynamicDetailType.textContent=type; dynamicDetailTitle.textContent=type+'详情'; dynamicDetailBody.innerHTML=`<p>${type==='政策通知'?'展示政策标题、正文、发布时间、发布部门和阅读状态；动态列表不展示附件数量。':'展示触发原因、建议动作、关联客户入口，并支持拨打电话、添加邀约、AI商机跟进话术。'}</p><div class="rounded-2xl bg-slate-50 p-3">异常覆盖：无权限、内容失效、target_page 为空时展示明确提示，不进入空白页。</div>`; }
+function showNoPermission(){ showToast(dynamicType==='政策通知'?'内容已失效':'暂无权限查看关联客户'); }
+function renderDynamics(){ const tabs=['全部','商户动态','商机推送','业务动态','政策通知','培训通知','通知公告']; dynamicTabs.innerHTML=tabs.map((t,i)=>`<button onclick="showToast('已切换：${t}')" class="px-4 h-9 rounded-full text-sm font-semibold ${i===0?'bg-primary text-white':'bg-white text-muted'}">${t}</button>`).join(''); dynamicList.innerHTML=['商户动态','商机推送','业务动态','政策通知','培训通知','通知公告'].map(t=>`<button onclick="openDynamicDetail('${t}')" class="card p-4 w-full text-left"><div class="flex justify-between"><h3 class="font-semibold">${t}：${t==='政策通知'?'营销合规提示更新':'客户上下文发生变化'}</h3><span class="w-2 h-2 rounded-full bg-red-500"></span></div><p class="text-xs text-muted mt-2">05-31 10:20 · 点击查看详情页与异常状态</p></button>`).join('') + `<div class="card p-5 text-center border-dashed"><span class="material-symbols-outlined text-slate-300 text-4xl">notifications_off</span><p class="text-sm text-muted">空状态：当前分类暂无消息</p></div>`; }
+function renderCustomerDynamics(){ const tabs=['全部','产品','资产','联系','渠道','活动']; customerDynTabs.innerHTML=tabs.map((t,i)=>`<button class="px-4 h-9 rounded-full text-sm font-semibold ${i===0?'bg-primary text-white':'bg-white text-muted'}">${t}</button>`).join(''); customerDynList.innerHTML=['产品到期提醒已生成','AUM 较三年峰值下降 ¥134万','客户经理电话联系已留痕','生活缴费渠道未签约','财富权益季参与进度80%'].map((t,i)=>`<div class="card p-4 flex gap-3"><div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-primary"><span class="material-symbols-outlined">${['inventory_2','account_balance_wallet','call','hub','redeem'][i]}</span></div><div><p class="font-semibold text-sm">${t}</p><p class="text-xs text-muted mt-1">2026-05-${31-i} 10:${20+i}</p></div></div>`).join('')+`<div class="card p-5 text-center border-dashed"><p class="text-sm text-muted">空状态：暂无客户动态，保留返回详情入口。</p></div>`; }
+renderCustomers(); renderDetailTabs(); renderDynamics(); renderCustomerDynamics();
+if (window.tailwind && typeof tailwind.init === 'function') tailwind.init();
+</script>
+</body>
+</html>
